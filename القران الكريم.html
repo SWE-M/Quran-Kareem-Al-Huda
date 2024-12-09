@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القرآن الكريم - الهدى</title>
+    <style>
+        /* Reset and general styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            background-color: #000;
+            color: #fff;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Sidebar styles */
+        #sidebar {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #111;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 99;
+        }
+
+        #sidebar ul {
+            list-style: none;
+            padding: 20px;
+            margin: 0;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+        #sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: block;
+            cursor: pointer;
+        }
+
+        #sidebar ul li a:hover {
+            color: #f39c12;
+            transition: color 0.3s ease;
+        }
+
+        /* PDF Container */
+        #pdf-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            transition: transform 0.3s ease;
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        #splash-screen h1 {
+            margin: 20px 0 0;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        #splash-screen p {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        /* Auto-disappear message (Right) */
+        #auto-message {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            background-color: #111;
+            padding: 15px;
+            border-radius: 8px;
+            color: #fff;
+            display: none;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 101;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 100%;
+                height: 50%;
+            }
+
+            #splash-screen img {
+                max-width: 100%;
+            }
+
+            #splash-screen h1 {
+                font-size: 1.2rem;
+            }
+
+            #splash-screen p {
+                font-size: 1rem;
+            }
+
+            iframe {
+                height: calc(100vh - 50px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar ul li a {
+                font-size: 1rem;
+            }
+
+            #auto-message {
+                width: 80%;
+                right: 10%;
+            }
+
+            #splash-screen h1, #splash-screen p {
+                font-size: 0.9rem;
+            }
+
+            iframe {
+                height: calc(100vh - 30px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
+        <h1>القرآن الكريم - الهدى</h1>
+        <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
+        <p>البقرة (185)</p>
+        <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
+        <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <ul>
+            <li><a href="#" onclick="navigateToPage(1)">الفاتحة</a></li>
+            <li><a href="#" onclick="navigateToPage(2)">البقرة</a></li>
+            <li><a href="#" onclick="navigateToPage(50)">آل عمران</a></li>
+        </ul>
+    </div>
+
+    <!-- PDF Container -->
+    <div id="pdf-container">
+        <iframe id="pdf-frame" src="https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/1/" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // Hide splash screen after 2 seconds
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
+
+        // Navigate to a specific page in the Quran
+        function navigateToPage(pageNumber) {
+            const pdfFrame = document.getElementById('pdf-frame');
+            pdfFrame.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/${pageNumber}/`;
+        }
+    </script>
+
+</body>
+</html>
