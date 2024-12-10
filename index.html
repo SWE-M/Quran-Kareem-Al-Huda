@@ -1,20 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar">
-    <meta name="google-site-verification" content="R05RBgo0ckyFzOZu7ZBCPHURVVIsra4EJg-pKiHdeZc" />
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Meta Tags for SEO -->
-    <meta name="description" content="القرآن الكريم - الهدى هو موقع يعرض القرآن الكريم بأحدث النسخ الرقمية مع تلاوة مميزة وتفسير معتمد.">
-    <meta name="keywords" content="القرآن الكريم, تلاوة, تفسير, إسلام, قرآن, القرآن الكريم - الهدى">
-    <meta name="author" content="موقع القرآن الكريم - الهدى">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="القرآن الكريم - الهدى">
-    <meta property="og:description" content="القرآن الكريم - الهدى هو موقع يعرض القرآن الكريم بأحدث النسخ الرقمية مع تلاوة مميزة وتفسير معتمد.">
-    <meta property="og:image" content="https://www.raed.net/img?id=1133268">
-    <meta property="og:url" content="https://mohammedqwedsa.github.io/my-website/">
-
     <title>القرآن الكريم - الهدى</title>
     
     <style>
@@ -28,60 +16,65 @@
             height: 100%;
             overflow: hidden;
         }
-        
-        /* Sidebar styles */
-        #sidebar {
-            position: fixed;
-            right: -300px;
-            top: 0;
-            width: 300px;
-            height: 100%;
-            background-color: #111;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-            transition: right 0.3s ease;
-            z-index: 99;
-        }
-        
-        #sidebar ul {
-            list-style: none;
-            padding: 20px;
-            margin: 0;
-        }
-        
-        #sidebar ul li {
-            margin-bottom: 15px;
-        }
-        
-        #sidebar ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            display: block;
-            cursor: pointer;
-        }
-        
-        #sidebar ul li a:hover {
-            color: #f39c12;
-            transition: color 0.3s ease;
-        }
-        
-        /* PDF Container */
+
+        /* Container for the iframe */
         #pdf-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1;
         }
-        
+
         iframe {
             width: 100%;
-            height: 100vh;
+            height: 100%;
             border: none;
-            transition: transform 0.3s ease;
         }
-        
+
+        /* The Close Button (Transparent Square with no content) */
+        #close-button {
+            position: fixed;
+            top: 0px; /* Adjust top position */
+            left: 0px; /* Adjust left position */
+            z-index: 1000;
+            width: 80px; /* Size of the square */
+            height: 80px; /* Size of the square */
+            background-color: transparent; /* Fully transparent */
+            border: none; /* No border */
+            border-radius: 0%; /* Make it square (no rounded corners) */
+            cursor: pointer;
+        }
+
+        /* Invisible overlay to block interaction with the X button */
+        #disable-x-overlay {
+            position: fixed;
+            top: 96%; /* المسافة من أسفل الصفحة */
+            left: 56%; /* المسافة من اليسار */
+            transform: translate(-50%, -50%); /* لضمان التمركز تمامًا */
+            width: 80px; /* حجم المربع */
+            height: 80px; /* حجم المربع */
+            background-color: transparent; /* جعله شفافًا */
+            pointer-events: auto; /* Block interaction with the X button */
+            z-index: 1000; /* تأكد من ظهوره فوق العناصر الأخرى */
+            cursor: pointer;
+        }
+
+        #bottom-square {
+            position: fixed;
+            top: 150px; /* المسافة من أعلى الصفحة */
+            left: 50%; /* المسافة من اليسار */
+            transform: translateX(-50%); /* لضمان المركز تمامًا */
+            z-index: 999;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border: none;
+            border-radius: 0%; 
+            cursor: pointer;
+        }
+
         /* Splash Screen */
         #splash-screen {
             position: fixed;
@@ -117,69 +110,9 @@
             text-align: center;
             color: #fff;
         }
-        
-        /* Auto-disappear message (Right) */
-        #auto-message {
-            position: fixed;
-            right: 20px;
-            top: 100px;
-            background-color: #111;
-            padding: 15px;
-            border-radius: 8px;
-            color: #fff;
-            display: none;
-            width: 300px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 101;
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            #sidebar {
-                width: 100%;
-                height: 50%;
-            }
-
-            #splash-screen img {
-                max-width: 100%;
-            }
-
-            #splash-screen h1 {
-                font-size: 1.2rem;
-            }
-
-            #splash-screen p {
-                font-size: 1rem;
-            }
-
-            iframe {
-                height: calc(100vh - 50px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            #sidebar ul li a {
-                font-size: 1rem;
-            }
-
-            #auto-message {
-                width: 80%;
-                right: 10%;
-            }
-
-            #splash-screen h1, #splash-screen p {
-                font-size: 0.9rem;
-            }
-
-            iframe {
-                height: calc(100vh - 30px);
-            }
-        }
     </style>
 </head>
-<meta name="google-site-verification" content="R05RBgo0ckyFzOZu7ZBCPHURVVIsra4EJg-pKiHdeZc" />
 <body>
-<meta name="google-site-verification" content="R05RBgo0ckyFzOZu7ZBCPHURVVIsra4EJg-pKiHdeZc" />
     <!-- Splash Screen -->
     <div id="splash-screen">
         <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
@@ -192,8 +125,18 @@
 
     <!-- PDF Container -->
     <div id="pdf-container">
-        <iframe id="pdf-frame" src="https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/1/" allowfullscreen></iframe>
+        <iframe id="pdf-frame" 
+            src="https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/1/" 
+            allowfullscreen 
+            sandbox="allow-scripts allow-same-origin">
+        </iframe>
     </div>
+
+    <!-- Close Button (Transparent Square with no content) -->
+    <div id="close-button"></div>
+
+    <!-- Invisible overlay to block interaction with the X button -->
+    <div id="disable-x-overlay"></div>
 
     <script>
         // Hide splash screen after 2 seconds
@@ -206,11 +149,49 @@
             }, 2000);
         };
 
-        // Navigate to a specific page in the Quran
-        function navigateToPage(pageNumber) {
-            const pdfFrame = document.getElementById('pdf-frame');
-            pdfFrame.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/${pageNumber}/`;
-        }
+        // Disable right-click on the page
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault(); // Disable right-click
+        });
+
+        // Disable interaction with the X button (with invisible overlay)
+        document.getElementById('disable-x-overlay').addEventListener('mousedown', function(event) {
+            event.preventDefault(); // Prevent interaction with the X button
+        });
+
+        // Prevent Escape key (ESC) from working on all devices (including mobile)
+        window.addEventListener('keydown', function(event) {
+            if (event.code === "Escape") {
+                event.preventDefault(); // Prevent default action (close or exit)
+                alert("لا يمكنك الخروج باستخدام مفتاح 'Esc'.");
+            }
+        });
+
+        // Prevent Backspace key for navigating back
+        window.addEventListener('keydown', function(event) {
+            if (event.code === "Backspace") {
+                event.preventDefault(); // Prevent going back using backspace key
+                alert("لا يمكنك الرجوع باستخدام مفتاح 'Backspace'.");
+            }
+        });
+
+        // Prevent browser back navigation (prevent user from going back to the previous page)
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, location.href);
+        });
+        history.pushState(null, null, location.href); // Keep the current page and prevent going back
+
+        // Prevent the browser from navigating back with hardware keys (especially on mobile)
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, null, window.location.href);
+        };
+
+        // Disable "back" action (on mobile devices and browsers)
+        window.addEventListener('beforeunload', function(event) {
+            event.preventDefault();  // Prevent page unload
+            event.returnValue = '';  // Required for most browsers
+        });
     </script>
 
 </body>
