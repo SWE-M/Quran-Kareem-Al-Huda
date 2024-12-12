@@ -50,12 +50,12 @@
         /* Invisible overlay to block interaction with the X button */
         #disable-x-overlay {
             position: fixed;
-            top: 95%; /* المسافة من أسفل الصفحة */
+            top: 97%; /* المسافة من أسفل الصفحة */
             left: 80%; /* المسافة من اليسار */
             transform: translate(-50%, -50%); /* لضمان التمركز تمامًا */
             width: 90px; /* حجم المربع */
             height: 50px; /* حجم المربع */
-            background-color: black; /* جعله شفافًا */
+            background-color: transparent; /* جعله شفافًا */
             pointer-events: auto; /* Block interaction with the X button */
             z-index: 1000; /* تأكد من ظهوره فوق العناصر الأخرى */
             cursor: pointer;
