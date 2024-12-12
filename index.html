@@ -160,6 +160,21 @@
             }
         });
 
+        // Touch event for detecting swipe from top to bottom
+        let touchStartY = 0;
+
+        document.body.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.body.addEventListener('touchmove', (e) => {
+            const touchEndY = e.touches[0].clientY;
+            if (touchEndY - touchStartY > 50) {  // Swipe down detected
+                document.body.style.filter = 'brightness(0.5)';
+                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
+            }
+        });
+
         // Hide splash screen after 2 seconds
         window.onload = function() {
             setTimeout(() => {
@@ -213,30 +228,6 @@
             if (currentPage > 1) {
                 currentPage--;
                 renderPage(currentPage);
-            }
-        });
-
-        // Swipe detection for navigating pages (left or right)
-        let touchStartX = 0;
-
-        document.getElementById('pdf-container').addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        document.getElementById('pdf-container').addEventListener('touchend', function(e) {
-            const touchEndX = e.changedTouches[0].clientX;
-            if (touchEndX > touchStartX) {
-                // Swipe right - next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                }
-            } else {
-                // Swipe left - previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                }
             }
         });
     </script>
