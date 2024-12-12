@@ -215,6 +215,30 @@
                 renderPage(currentPage);
             }
         });
+
+        // Swipe detection for navigating pages (left or right)
+        let touchStartX = 0;
+
+        document.getElementById('pdf-container').addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.getElementById('pdf-container').addEventListener('touchend', function(e) {
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchEndX > touchStartX) {
+                // Swipe right - next page
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            } else {
+                // Swipe left - previous page
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            }
+        });
     </script>
 </body>
 </html>
