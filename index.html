@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css" />
     <style>
         /* Reset and general styles */
         body, html {
@@ -71,10 +72,9 @@
             z-index: 1;
         }
 
-        iframe {
+        #pdf-viewer {
             width: 100%;
             height: 100%;
-            border: none;
         }
 
         /* Button to toggle the sidebar */
@@ -135,9 +135,9 @@
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
-    <!-- PDF Container -->
+    <!-- PDF Container using PDF.js -->
     <div id="pdf-container">
-        <iframe id="pdf-frame" src="E-Quran-mobile.pdf" allowfullscreen></iframe>
+        <div id="pdf-viewer"></div>
     </div>
 
     <!-- Sidebar for Quran Index -->
@@ -156,105 +156,64 @@
                 آل عمران (3)
                 <img src="images/al_imran.jpg" alt="آل عمران">
             </li>
-            <li data-page="4" onclick="goToPage(4)">
-                النساء (4)
-                <img src="images/al_nisa.jpg" alt="النساء">
-            </li>
-            <li data-page="5" onclick="goToPage(5)">
-                المائدة (5)
-                <img src="images/al_maida.jpg" alt="المائدة">
-            </li>
-            <li data-page="6" onclick="goToPage(6)">
-                الأنعام (6)
-                <img src="images/al_anam.jpg" alt="الأنعام">
-            </li>
-            <li data-page="7" onclick="goToPage(7)">
-                الأعراف (7)
-                <img src="images/al_araf.jpg" alt="الأعراف">
-            </li>
-            <li data-page="8" onclick="goToPage(8)">
-                الأنفال (8)
-                <img src="images/al_anfal.jpg" alt="الأنفال">
-            </li>
-            <li data-page="9" onclick="goToPage(9)">
-                التوبة (9)
-                <img src="images/at_tawba.jpg" alt="التوبة">
-            </li>
-            <li data-page="10" onclick="goToPage(10)">
-                يونس (10)
-                <img src="images/yunus.jpg" alt="يونس">
-            </li>
-            <li data-page="11" onclick="goToPage(11)">
-                هود (11)
-                <img src="images/hud.jpg" alt="هود">
-            </li>
-            <li data-page="12" onclick="goToPage(12)">
-                يوسف (12)
-                <img src="images/yusuf.jpg" alt="يوسف">
-            </li>
-            <li data-page="13" onclick="goToPage(13)">
-                إبراهيم (13)
-                <img src="images/ibrahim.jpg" alt="إبراهيم">
-            </li>
-            <li data-page="14" onclick="goToPage(14)">
-                الحجر (14)
-                <img src="images/al_hijr.jpg" alt="الحجر">
-            </li>
-            <li data-page="15" onclick="goToPage(15)">
-                النحل (15)
-                <img src="images/an_nahl.jpg" alt="النحل">
-            </li>
-            <li data-page="16" onclick="goToPage(16)">
-                الإسراء (16)
-                <img src="images/al_isra.jpg" alt="الإسراء">
-            </li>
-            <li data-page="17" onclick="goToPage(17)">
-                الكهف (17)
-                <img src="images/al_kahf.jpg" alt="الكهف">
-            </li>
-            <li data-page="18" onclick="goToPage(18)">
-                مريم (18)
-                <img src="images/maryam.jpg" alt="مريم">
-            </li>
-            <li data-page="19" onclick="goToPage(19)">
-                طه (19)
-                <img src="images/taha.jpg" alt="طه">
-            </li>
-            <li data-page="20" onclick="goToPage(20)">
-                الأنبياء (20)
-                <img src="images/al_anbiya.jpg" alt="الأنبياء">
-            </li>
-            <li data-page="21" onclick="goToPage(21)">
-                الحج (21)
-                <img src="images/al_hajj.jpg" alt="الحج">
-            </li>
-            <li data-page="22" onclick="goToPage(22)">
-                المؤمنون (22)
-                <img src="images/al_muminun.jpg" alt="المؤمنون">
-            </li>
-            <li data-page="23" onclick="goToPage(23)">
-                الفرقان (23)
-                <img src="images/al_furqan.jpg" alt="الفرقان">
-            </li>
-            <!-- Continue adding more surahs here... -->
+            <!-- Add other surahs here -->
         </ul>
     </div>
 
     <!-- Toggle Sidebar Button -->
     <button id="toggle-sidebar" onclick="toggleSidebar()">فهرس السور</button>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
-        // Function to toggle sidebar visibility
+        // PDF.js settings
+        const url = 'E-Quran-mobile.pdf';  // Your PDF file URL
+        let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null;
+
+        // Rendering the PDF page
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(function(page) {
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                document.getElementById("pdf-viewer").appendChild(canvas);
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                page.render(renderContext).promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+        }
+
+        // Loading the PDF
+        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+            pdfDoc = pdf;
+            renderPage(pageNum);
+        });
+
+        // Navigating to specific page from the index
+        function goToPage(pageNumber) {
+            pageNum = pageNumber;
+            document.getElementById("pdf-viewer").innerHTML = '';  // Clear previous content
+            renderPage(pageNum);
+            toggleSidebar();  // Close sidebar after page selection
+        }
+
+        // Toggle sidebar visibility
         function toggleSidebar() {
             var sidebar = document.getElementById("sidebar");
             sidebar.style.display = (sidebar.style.display === "none" || sidebar.style.display === "") ? "block" : "none";
-        }
-
-        // Function to go to a specific page in the PDF
-        function goToPage(pageNumber) {
-            var iframe = document.getElementById("pdf-frame");
-            iframe.contentWindow.PDFViewerApplication.page = pageNumber;
-            toggleSidebar(); // Close sidebar after page selection
         }
 
         // Close the splash screen after a delay
