@@ -4,75 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
-    
     <style>
         /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #f4f4f4;
+            color: #333;
             height: 100%;
-            overflow: hidden;
-        }
-
-        /* Container for the iframe */
-        #pdf-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* The Close Button (Transparent Square with no content) */
-        #close-button {
-            position: fixed;
-            top: 0px; /* Adjust top position */
-            left: 0px; /* Adjust left position */
-            z-index: 1000;
-            width: 80px; /* Size of the square */
-            height: 80px; /* Size of the square */
-            background-color: transparent; /* Fully transparent */
-            border: none; /* No border */
-            border-radius: 0%; /* Make it square (no rounded corners) */
-            cursor: pointer;
-        }
-
-        /* Invisible overlay to block interaction with the X button */
-        #disable-x-overlay {
-            position: fixed;
-            top: 97%; /* المسافة من أسفل الصفحة */
-            left: 80%; /* المسافة من اليسار */
-            transform: translate(-50%, -50%); /* لضمان التمركز تمامًا */
-            width: 90px; /* حجم المربع */
-            height: 50px; /* حجم المربع */
-            background-color: transparent; /* جعله شفافًا */
-            pointer-events: auto; /* Block interaction with the X button */
-            z-index: 1000; /* تأكد من ظهوره فوق العناصر الأخرى */
-            cursor: pointer;
-        }
-
-        #bottom-square {
-            position: fixed;
-            top: 150px; /* المسافة من أعلى الصفحة */
-            left: 50%; /* المسافة من اليسار */
-            transform: translateX(-50%); /* لضمان المركز تمامًا */
-            z-index: 999;
-            width: 45px;
-            height: 45px;
-            background-color: black; 
-            border: none;
-            border-radius: 0%; 
-            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
 
         /* Splash Screen */
@@ -91,24 +35,54 @@
             opacity: 1;
             transition: opacity 0.5s ease-out;
         }
-        
+
         #splash-screen img {
             max-width: 80%;
             max-height: 80%;
         }
-        
+
         #splash-screen h1 {
             margin: 20px 0 0;
             font-size: 1.5rem;
             text-align: center;
-            color: #fff;
         }
-        
+
         #splash-screen p {
             margin-top: 10px;
             font-size: 1.2rem;
             text-align: center;
-            color: #fff;
+        }
+
+        /* PDF Container */
+        #pdf-container {
+            width: 100%;
+            height: 80vh;
+            overflow: auto;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #pdf-toolbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            width: 100%;
+        }
+
+        #pdf-toolbar button {
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #pdf-toolbar button:hover {
+            background-color: #666;
         }
     </style>
 </head>
@@ -123,23 +97,67 @@
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
-    <!-- PDF Container -->
-    <div id="pdf-container">
-        <iframe id="pdf-frame" 
-            src="https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11299/1/" 
-            allowfullscreen 
-            sandbox="allow-scripts allow-same-origin">
-        </iframe>
+    <!-- PDF Toolbar -->
+    <div id="pdf-toolbar">
+        <button id="prevPageBtn">الصفحة السابقة</button>
+        <button id="nextPageBtn">الصفحة التالية</button>
     </div>
 
-    <!-- Close Button (Transparent Square with no content) -->
-    <div id="close-button"></div>
+    <!-- PDF Container -->
+    <div id="pdf-container">
+        <canvas id="pdf-canvas"></canvas>
+    </div>
 
-    <!-- Invisible overlay to block interaction with the X button -->
-    <div id="disable-x-overlay"></div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
-        // Hide splash screen after 2 seconds
+        const url = 'E-Quran-mobile.pdf'; // مسار ملف PDF
+
+        // إعدادات PDF.js
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let currentPage = 1;
+
+        // تحميل PDF
+        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            renderPage(currentPage);
+        });
+
+        // رسم الصفحة
+        function renderPage(pageNum) {
+            pdfDoc.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                const canvas = document.getElementById('pdf-canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+            });
+        }
+
+        // الانتقال للصفحة التالية
+        document.getElementById('nextPageBtn').addEventListener('click', function() {
+            if (currentPage < pdfDoc.numPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+        });
+
+        // الانتقال للصفحة السابقة
+        document.getElementById('prevPageBtn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        });
+
+        // إخفاء شاشة البداية بعد تحميل الصفحة
         window.onload = function() {
             setTimeout(() => {
                 document.getElementById('splash-screen').style.opacity = '0';
@@ -148,51 +166,6 @@
                 }, 500);
             }, 2000);
         };
-
-        // Disable right-click on the page
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault(); // Disable right-click
-        });
-
-        // Disable interaction with the X button (with invisible overlay)
-        document.getElementById('disable-x-overlay').addEventListener('mousedown', function(event) {
-            event.preventDefault(); // Prevent interaction with the X button
-        });
-
-        // Prevent Escape key (ESC) from working on all devices (including mobile)
-        window.addEventListener('keydown', function(event) {
-            if (event.code === "Escape") {
-                event.preventDefault(); // Prevent default action (close or exit)
-                alert("لا يمكنك الخروج باستخدام مفتاح 'Esc'.");
-            }
-        });
-
-        // Prevent Backspace key for navigating back
-        window.addEventListener('keydown', function(event) {
-            if (event.code === "Backspace") {
-                event.preventDefault(); // Prevent going back using backspace key
-                alert("لا يمكنك الرجوع باستخدام مفتاح 'Backspace'.");
-            }
-        });
-
-        // Prevent browser back navigation (prevent user from going back to the previous page)
-        window.addEventListener('popstate', function(event) {
-            history.pushState(null, null, location.href);
-        });
-        history.pushState(null, null, location.href); // Keep the current page and prevent going back
-
-        // Prevent the browser from navigating back with hardware keys (especially on mobile)
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function () {
-            window.history.pushState(null, null, window.location.href);
-        };
-
-        // Disable "back" action (on mobile devices and browsers)
-        window.addEventListener('beforeunload', function(event) {
-            event.preventDefault();  // Prevent page unload
-            event.returnValue = '';  // Required for most browsers
-        });
     </script>
-
 </body>
 </html>
