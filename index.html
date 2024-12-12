@@ -151,93 +151,91 @@
         // Toggle dark mode on button click
         const darkModeBtn = document.getElementById('dark-mode-btn');
         darkModeBtn.addEventListener('click', () => {
-            if (document.body.style.filter === 'brightness(0.5)') {
-                document.body.style.filter = 'brightness(1)';
-                darkModeBtn.textContent = 'تخفيض الإضاءة'; // Change button text
+            if (document.body.style.filter === 'brightness(50%)') {
+                document.body.style.filter = 'brightness(100%)';  // Un-darken
             } else {
-                document.body.style.filter = 'brightness(0.5)';
-                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
+                document.body.style.filter = 'brightness(50%)';  // Darken
             }
         });
-
-        // Touch event for detecting swipe from top to bottom
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchmove', (e) => {
-            touchEndY = e.touches[0].clientY;
-            const touchDifference = touchEndY - touchStartY;
-
-            // If swipe is downwards, apply dark filter
-            if (touchDifference > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
-            }
-
-            // If swipe is upwards, remove dark filter
-            if (touchDifference < -50) {
-                document.body.style.filter = 'brightness(1)';
-                darkModeBtn.textContent = 'تخفيض الإضاءة'; // Change button text
-            }
-        });
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
 
         // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
+        const url = 'path_to_pdf_file.pdf'; // Replace with actual PDF path
         let pdfDoc = null;
         let currentPage = 1;
-        let totalPages = 0;
 
-        // Canvas rendering for PDF
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Load the PDF document
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
-            totalPages = pdf.numPages;
             renderPage(currentPage);
         });
 
-        // Render a specific page
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+
+                const canvas = document.getElementById('pdf-canvas');
+                const context = canvas.getContext('2d');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
+
                 page.render({
-                    canvasContext: ctx,
+                    canvasContext: context,
                     viewport: viewport
                 });
             });
         }
 
-        // Navigate to the next page
+        // PDF navigation buttons
         document.getElementById('next-page').addEventListener('click', function() {
-            if (currentPage < totalPages) {
+            if (currentPage < pdfDoc.numPages) {
                 currentPage++;
                 renderPage(currentPage);
             }
         });
 
-        // Navigate to the previous page
         document.getElementById('prev-page').addEventListener('click', function() {
             if (currentPage > 1) {
                 currentPage--;
                 renderPage(currentPage);
+            }
+        });
+
+        // Handle touch events for swipe detection
+        let touchStartX = 0, touchStartY = 0;
+
+        document.getElementById('pdf-container').addEventListener('touchstart', function(e) {
+            const touch = e.touches[0];
+            touchStartX = touch.pageX;
+            touchStartY = touch.pageY;
+        });
+
+        document.getElementById('pdf-container').addEventListener('touchend', function(e) {
+            const touch = e.changedTouches[0];
+            const touchEndX = touch.pageX;
+            const touchEndY = touch.pageY;
+
+            // Horizontal swipe detection (left to right or right to left)
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right (previous page)
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            } else if (touchEndX < touchStartX - 50) {
+                // Swipe left (next page)
+                if (currentPage < pdfDoc.numPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            }
+
+            // Vertical swipe detection (up and down)
+            if (touchEndY > touchStartY + 50) {
+                // Swipe down (activate filter)
+                document.body.style.filter = 'brightness(50%)';  // Activate filter
+            } else if (touchEndY < touchStartY - 50) {
+                // Swipe up (deactivate filter)
+                document.body.style.filter = 'brightness(100%)';  // Deactivate filter
             }
         });
     </script>
