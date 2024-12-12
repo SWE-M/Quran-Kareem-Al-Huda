@@ -21,13 +21,14 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 90%;
+            height: 90%;
             z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: auto;
+            margin-top: 20px;
         }
 
         /* Splash Screen */
@@ -90,15 +91,60 @@
             background-color: #555;
         }
 
+        /* Table of Contents (Index) */
+        #index {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            max-height: 80%;
+            overflow-y: auto;
+            width: 20%;
+            z-index: 10;
+            color: #fff;
+        }
+
+        #index h3 {
+            font-size: 1.5rem;
+        }
+
+        #index ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #index li {
+            margin: 10px 0;
+        }
+
+        #index a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        #index a:hover {
+            color: #f1c40f;
+        }
+
         @media (max-width: 768px) {
             #pdf-container {
                 margin: 0;
                 padding: 5px;
+                width: 100%;
+                height: 80%;
             }
 
             #pdf-navigation button {
                 font-size: 1rem;
                 padding: 8px 12px;
+            }
+
+            #index {
+                left: 5%;
+                top: 5%;
+                width: 30%;
             }
         }
     </style>
@@ -113,6 +159,14 @@
         <p>البقرة (185)</p>
         <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
+    </div>
+
+    <!-- Table of Contents -->
+    <div id="index">
+        <h3>الفهرس</h3>
+        <ul id="toc-list">
+            <!-- Dynamic Table of Contents will be loaded here -->
+        </ul>
     </div>
 
     <!-- PDF Navigation -->
@@ -152,6 +206,7 @@
             pdfDoc = pdf;
             totalPages = pdf.numPages;
             renderPage(currentPage);
+            loadOutline(pdf); // Load table of contents (outline)
         });
 
         // Render a specific page
@@ -170,9 +225,9 @@
         // Calculate scale based on screen size
         function getScale() {
             if (window.innerWidth <= 768) {
-                return 1.0;  // Mobile screen scaling
+                return 0.8;  // Mobile screen scaling (smaller scale for better fit)
             } else {
-                return 1.5;  // Desktop scaling
+                return 1.0;  // Desktop scaling
             }
         }
 
@@ -191,6 +246,28 @@
                 renderPage(currentPage);
             }
         });
+
+        // Load the outline (table of contents) from the PDF
+        function loadOutline(pdf) {
+            pdf.getOutline().then(function(outline) {
+                const tocList = document.getElementById('toc-list');
+                if (outline) {
+                    outline.forEach(function(item) {
+                        const li = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.textContent = item.title;
+                        link.href = '#';
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            currentPage = item.dest[0].num; // Use the page number from outline
+                            renderPage(currentPage);
+                        });
+                        li.appendChild(link);
+                        tocList.appendChild(li);
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>
