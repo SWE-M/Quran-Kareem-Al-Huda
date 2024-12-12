@@ -4,77 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css" />
     <style>
+        /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #f4f4f4;
+            color: #333;
             height: 100%;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* PDF Container */
-        #pdf-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        #pdf-viewer {
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-        }
-
-        /* Controls for PDF Navigation */
-        #controls {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        #controls button {
-            background-color: #444;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-
-        #controls button:hover {
-            background-color: #666;
-        }
-
-        /* Button to toggle the sidebar */
-        #toggle-sidebar {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #444;
-            color: #fff;
-            padding: 10px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            z-index: 5;
+            flex-direction: column;
         }
 
         /* Splash Screen */
@@ -110,6 +52,38 @@
             font-size: 1.2rem;
             text-align: center;
         }
+
+        /* PDF Container */
+        #pdf-container {
+            width: 100%;
+            height: 80vh;
+            overflow: auto;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #pdf-toolbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            width: 100%;
+        }
+
+        #pdf-toolbar button {
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #pdf-toolbar button:hover {
+            background-color: #666;
+        }
     </style>
 </head>
 <body>
@@ -123,90 +97,75 @@
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
-    <!-- PDF Container using PDF.js -->
+    <!-- PDF Toolbar -->
+    <div id="pdf-toolbar">
+        <button id="prevPageBtn">الصفحة السابقة</button>
+        <button id="nextPageBtn">الصفحة التالية</button>
+    </div>
+
+    <!-- PDF Container -->
     <div id="pdf-container">
-        <div id="pdf-viewer"></div>
+        <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <!-- Controls for navigating the PDF -->
-    <div id="controls">
-        <button id="prev-page">الصفحة السابقة</button>
-        <button id="next-page">الصفحة التالية</button>
-    </div>
-
-    <!-- Toggle Sidebar Button -->
-    <button id="toggle-sidebar" onclick="toggleSidebar()">فهرس السور</button>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
-        // PDF.js settings
-        const url = 'E-Quran-mobile.pdf';  // Your PDF file URL
-        let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null;
+        const url = 'E-Quran-mobile.pdf'; // مسار ملف PDF
 
-        // Rendering the PDF page
-        function renderPage(num) {
-            pageRendering = true;
-            pdfDoc.getPage(num).then(function(page) {
-                const scale = 1.5;
-                const viewport = page.getViewport({ scale: scale });
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
+        // إعدادات PDF.js
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
+        let pdfDoc = null;
+        let currentPage = 1;
+
+        // تحميل PDF
+        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            renderPage(currentPage);
+        });
+
+        // رسم الصفحة
+        function renderPage(pageNum) {
+            pdfDoc.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                const canvas = document.getElementById('pdf-canvas');
+                const context = canvas.getContext('2d');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
-                document.getElementById("pdf-viewer").innerHTML = '';  // Clear previous content
-                document.getElementById("pdf-viewer").appendChild(canvas);
-                const renderContext = {
-                    canvasContext: ctx,
+                page.render({
+                    canvasContext: context,
                     viewport: viewport
-                };
-                page.render(renderContext).promise.then(function() {
-                    pageRendering = false;
-                    if (pageNumPending !== null) {
-                        renderPage(pageNumPending);
-                        pageNumPending = null;
-                    }
                 });
             });
         }
 
-        // Loading the PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            pdfDoc = pdf;
-            renderPage(pageNum);
-        });
-
-        // Next Page
-        document.getElementById('next-page').addEventListener('click', function() {
-            if (pageNum < pdfDoc.numPages) {
-                pageNum++;
-                renderPage(pageNum);
+        // الانتقال للصفحة التالية
+        document.getElementById('nextPageBtn').addEventListener('click', function() {
+            if (currentPage < pdfDoc.numPages) {
+                currentPage++;
+                renderPage(currentPage);
             }
         });
 
-        // Previous Page
-        document.getElementById('prev-page').addEventListener('click', function() {
-            if (pageNum > 1) {
-                pageNum--;
-                renderPage(pageNum);
+        // الانتقال للصفحة السابقة
+        document.getElementById('prevPageBtn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
             }
         });
 
-        // Toggle sidebar visibility
-        function toggleSidebar() {
-            var sidebar = document.getElementById("sidebar");
-            sidebar.style.display = (sidebar.style.display === "none" || sidebar.style.display === "") ? "block" : "none";
-        }
-
-        // Close the splash screen after a delay
-        setTimeout(function() {
-            var splashScreen = document.getElementById("splash-screen");
-            splashScreen.style.opacity = "0";
-            setTimeout(function() {
-                splashScreen.style.display = "none";
-            }, 500);
-        }, 5000); // 5 seconds delay
+        // إخفاء شاشة البداية بعد تحميل الصفحة
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
     </script>
 </body>
 </html>
