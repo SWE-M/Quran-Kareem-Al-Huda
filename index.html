@@ -90,23 +90,22 @@
             background-color: #555;
         }
 
-        /* استعلامات الوسائط */
-        /* مقياس للجوال */
+        /* Adjustments for smaller screens */
         @media (max-width: 768px) {
             #pdf-container {
-                transform: scale(0.7);
-                transform-origin: 0 0;
-            }
-        }
-
-        /* مقياس لأجهزة الكمبيوتر */
-        @media (min-width: 769px) {
-            #pdf-container {
                 transform: scale(1);
-                transform-origin: 0 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Adjust canvas size to fit the screen */
+            #pdf-canvas {
+                width: 100%;
+                height: 100%;
             }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
     <!-- Splash Screen -->
@@ -130,7 +129,6 @@
         <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
         // Hide splash screen after 2 seconds
         window.onload = function() {
@@ -162,7 +160,7 @@
         // Render a specific page
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1 });
+                const viewport = page.getViewport({ scale: 1.5 });
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
                 page.render({
