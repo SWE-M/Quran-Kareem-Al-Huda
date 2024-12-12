@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
     <style>
-        /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -14,10 +13,9 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
+            transition: filter 0.3s ease;
         }
 
-        /* Button for dark mode */
         #dark-mode-btn {
             position: fixed;
             top: 10px;
@@ -31,213 +29,115 @@
             z-index: 999;
         }
 
-        /* PDF Container */
         #pdf-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-        }
-
-        /* Splash Screen */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        #splash-screen img {
-            max-width: 80%;
-            max-height: 80%;
-        }
-
-        #splash-screen h1 {
-            margin: 20px 0 0;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
-        #splash-screen p {
-            margin-top: 10px;
-            font-size: 1.2rem;
-            text-align: center;
-        }
-
-        /* PDF navigation controls */
-        #pdf-navigation {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        #pdf-navigation button {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        #pdf-navigation button:hover {
-            background-color: #555;
-        }
-
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
-    <!-- Button to toggle dark mode -->
     <button id="dark-mode-btn">تخفيض الإضاءة</button>
-
-    <!-- Splash Screen -->
-    <div id="splash-screen">
-        <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
-        <h1>القرآن الكريم - الهدى</h1>
-        <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
-        <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
-        <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
-    </div>
-
-    <!-- PDF Navigation -->
-    <div id="pdf-navigation">
-        <button id="prev-page">&#8592;</button> <!-- السهم لليسار -->
-        <button id="next-page">&#8594;</button> <!-- السهم لليمين -->
-    </div>
-
-    <!-- PDF Container -->
     <div id="pdf-container">
         <canvas id="pdf-canvas"></canvas>
     </div>
-
     <script>
-        // Toggle dark mode on button click
-        const darkModeBtn = document.getElementById('dark-mode-btn');
-        darkModeBtn.addEventListener('click', () => {
-            if (document.body.style.filter === 'brightness(0.5)') {
-                document.body.style.filter = 'brightness(1)';
-                darkModeBtn.textContent = 'تخفيض الإضاءة'; // Change button text
-            } else {
-                document.body.style.filter = 'brightness(0.5)';
-                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
-            }
-        });
-
-        // Touch event for detecting swipe from top to bottom
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchmove', (e) => {
-            touchEndY = e.touches[0].clientY;
-            const touchDifference = touchEndY - touchStartY;
-
-            // If swipe is downwards, apply dark filter
-            if (touchDifference > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
-            }
-
-            // If swipe is upwards, remove dark filter
-            if (touchDifference < -50) {
-                document.body.style.filter = 'brightness(1)';
-                darkModeBtn.textContent = 'تخفيض الإضاءة'; // Change button text
-            }
-        });
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
+        // PDF.js variables
+        const url = 'E-Quran-mobile.pdf'; // مسار ملف PDF الخاص بك
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
 
-        // Canvas rendering for PDF
+        // Canvas variables
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Load the PDF document
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+        // Load PDF document
+        pdfjsLib.getDocument(url).promise.then(function (pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
             renderPage(currentPage);
+        }).catch(function (error) {
+            console.error('Error loading PDF:', error);
         });
 
         // Render a specific page
         function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
+            pdfDoc.getPage(pageNum).then(function (page) {
                 const viewport = page.getViewport({ scale: 1.5 });
-                canvas.height = viewport.height;
                 canvas.width = viewport.width;
-                page.render({
+                canvas.height = viewport.height;
+
+                const renderContext = {
                     canvasContext: ctx,
-                    viewport: viewport
-                });
+                    viewport: viewport,
+                };
+                page.render(renderContext);
             });
         }
 
-        // Navigate to the next page
-        document.getElementById('next-page').addEventListener('click', function() {
+        // Navigation buttons (swipe functionality added below)
+        function goToNextPage() {
             if (currentPage < totalPages) {
                 currentPage++;
                 renderPage(currentPage);
             }
-        });
+        }
 
-        // Navigate to the previous page
-        document.getElementById('prev-page').addEventListener('click', function() {
+        function goToPrevPage() {
             if (currentPage > 1) {
                 currentPage--;
                 renderPage(currentPage);
+            }
+        }
+
+        // Dark mode toggle
+        const darkModeBtn = document.getElementById('dark-mode-btn');
+        darkModeBtn.addEventListener('click', () => {
+            if (document.body.style.filter === 'brightness(0.5)') {
+                document.body.style.filter = 'brightness(1)';
+                darkModeBtn.textContent = 'تخفيض الإضاءة';
+            } else {
+                document.body.style.filter = 'brightness(0.5)';
+                darkModeBtn.textContent = 'إعادة الإضاءة';
+            }
+        });
+
+        // Swipe gestures
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const swipeThreshold = 30; // Reduced threshold for better sensitivity
+
+        document.addEventListener('touchstart', function (event) {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', function (event) {
+            const touchEndX = event.changedTouches[0].clientX;
+            const touchEndY = event.changedTouches[0].clientY;
+
+            // Horizontal swipe (left or right)
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX > 0) {
+                    goToPrevPage(); // Swipe right
+                } else {
+                    goToNextPage(); // Swipe left
+                }
             }
         });
     </script>
