@@ -14,6 +14,51 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* Sidebar styles for the index */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            width: 250px;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+            display: none; /* Hidden by default */
+        }
+
+        #sidebar h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #sidebar li {
+            cursor: pointer;
+            padding: 8px;
+            text-align: right;
+            border-bottom: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #sidebar li:hover {
+            background-color: #444;
+        }
+
+        #sidebar img {
+            max-height: 30px;
+            margin-left: 10px;
         }
 
         /* PDF Container */
@@ -28,7 +73,19 @@
 
         iframe {
             width: 100%;
-            height: 80vh; /* Adjusted for mobile */
+            height: 100%;
+            border: none;
+        }
+
+        /* Button to toggle the sidebar */
+        #toggle-sidebar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #444;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
             border: none;
         }
 
@@ -47,12 +104,11 @@
             z-index: 9999;
             opacity: 1;
             transition: opacity 0.5s ease-out;
-            padding: 10px;
         }
 
         #splash-screen img {
-            max-width: 70%; /* Adjust image size */
-            max-height: 70%;
+            max-width: 80%;
+            max-height: 80%;
         }
 
         #splash-screen h1 {
@@ -65,41 +121,6 @@
             margin-top: 10px;
             font-size: 1.2rem;
             text-align: center;
-        }
-
-        /* For small screens (like mobile phones) */
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-
-            iframe {
-                height: 70vh; /* Reduced height for mobile */
-            }
-
-            #splash-screen {
-                padding: 15px;
-            }
-
-            #splash-screen img {
-                max-width: 80%;
-                max-height: 80%;
-            }
-        }
-
-        /* For very small screens (like small mobile phones) */
-        @media (max-width: 480px) {
-            iframe {
-                height: 60vh; /* Further reduced height */
-            }
-
-            #splash-screen h1 {
-                font-size: 1.2rem;
-            }
-
-            #splash-screen p {
-                font-size: 1rem;
-            }
         }
     </style>
 </head>
@@ -116,22 +137,134 @@
 
     <!-- PDF Container -->
     <div id="pdf-container">
-        <iframe 
-            src="E-Quran-mobile.pdf" 
-            allowfullscreen>
-        </iframe>
+        <iframe id="pdf-frame" src="E-Quran-mobile.pdf" allowfullscreen></iframe>
     </div>
 
+    <!-- Sidebar for Quran Index -->
+    <div id="sidebar">
+        <h3>فهرس السور</h3>
+        <ul>
+            <li data-page="1" onclick="goToPage(1)">
+                الفاتحة (1)
+                <img src="images/fatiha.jpg" alt="الفاتحة">
+            </li>
+            <li data-page="2" onclick="goToPage(2)">
+                البقرة (2)
+                <img src="images/baqara.jpg" alt="البقرة">
+            </li>
+            <li data-page="3" onclick="goToPage(3)">
+                آل عمران (3)
+                <img src="images/al_imran.jpg" alt="آل عمران">
+            </li>
+            <li data-page="4" onclick="goToPage(4)">
+                النساء (4)
+                <img src="images/al_nisa.jpg" alt="النساء">
+            </li>
+            <li data-page="5" onclick="goToPage(5)">
+                المائدة (5)
+                <img src="images/al_maida.jpg" alt="المائدة">
+            </li>
+            <li data-page="6" onclick="goToPage(6)">
+                الأنعام (6)
+                <img src="images/al_anam.jpg" alt="الأنعام">
+            </li>
+            <li data-page="7" onclick="goToPage(7)">
+                الأعراف (7)
+                <img src="images/al_araf.jpg" alt="الأعراف">
+            </li>
+            <li data-page="8" onclick="goToPage(8)">
+                الأنفال (8)
+                <img src="images/al_anfal.jpg" alt="الأنفال">
+            </li>
+            <li data-page="9" onclick="goToPage(9)">
+                التوبة (9)
+                <img src="images/at_tawba.jpg" alt="التوبة">
+            </li>
+            <li data-page="10" onclick="goToPage(10)">
+                يونس (10)
+                <img src="images/yunus.jpg" alt="يونس">
+            </li>
+            <li data-page="11" onclick="goToPage(11)">
+                هود (11)
+                <img src="images/hud.jpg" alt="هود">
+            </li>
+            <li data-page="12" onclick="goToPage(12)">
+                يوسف (12)
+                <img src="images/yusuf.jpg" alt="يوسف">
+            </li>
+            <li data-page="13" onclick="goToPage(13)">
+                إبراهيم (13)
+                <img src="images/ibrahim.jpg" alt="إبراهيم">
+            </li>
+            <li data-page="14" onclick="goToPage(14)">
+                الحجر (14)
+                <img src="images/al_hijr.jpg" alt="الحجر">
+            </li>
+            <li data-page="15" onclick="goToPage(15)">
+                النحل (15)
+                <img src="images/an_nahl.jpg" alt="النحل">
+            </li>
+            <li data-page="16" onclick="goToPage(16)">
+                الإسراء (16)
+                <img src="images/al_isra.jpg" alt="الإسراء">
+            </li>
+            <li data-page="17" onclick="goToPage(17)">
+                الكهف (17)
+                <img src="images/al_kahf.jpg" alt="الكهف">
+            </li>
+            <li data-page="18" onclick="goToPage(18)">
+                مريم (18)
+                <img src="images/maryam.jpg" alt="مريم">
+            </li>
+            <li data-page="19" onclick="goToPage(19)">
+                طه (19)
+                <img src="images/taha.jpg" alt="طه">
+            </li>
+            <li data-page="20" onclick="goToPage(20)">
+                الأنبياء (20)
+                <img src="images/al_anbiya.jpg" alt="الأنبياء">
+            </li>
+            <li data-page="21" onclick="goToPage(21)">
+                الحج (21)
+                <img src="images/al_hajj.jpg" alt="الحج">
+            </li>
+            <li data-page="22" onclick="goToPage(22)">
+                المؤمنون (22)
+                <img src="images/al_muminun.jpg" alt="المؤمنون">
+            </li>
+            <li data-page="23" onclick="goToPage(23)">
+                الفرقان (23)
+                <img src="images/al_furqan.jpg" alt="الفرقان">
+            </li>
+            <!-- Continue adding more surahs here... -->
+        </ul>
+    </div>
+
+    <!-- Toggle Sidebar Button -->
+    <button id="toggle-sidebar" onclick="toggleSidebar()">فهرس السور</button>
+
     <script>
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
+        // Function to toggle sidebar visibility
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.style.display = (sidebar.style.display === "none" || sidebar.style.display === "") ? "block" : "none";
+        }
+
+        // Function to go to a specific page in the PDF
+        function goToPage(pageNumber) {
+            var iframe = document.getElementById("pdf-frame");
+            iframe.contentWindow.PDFViewerApplication.page = pageNumber;
+            toggleSidebar(); // Close sidebar after page selection
+        }
+
+        // Close the splash screen after a delay
+        setTimeout(function() {
+            var splashScreen = document.getElementById("splash-screen");
+            splashScreen.style.opacity = "0";
+            setTimeout(function() {
+                splashScreen.style.display = "none";
+            }, 500);
+        }, 5000); // 5 seconds delay
     </script>
 </body>
 </html>
