@@ -89,6 +89,21 @@
         #pdf-navigation button:hover {
             background-color: #555;
         }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 768px) {
+            #pdf-container {
+                transform: scale(1);
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Adjust canvas size to fit the screen */
+            #pdf-canvas {
+                width: 100%;
+                height: 100%;
+            }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
@@ -170,21 +185,6 @@
             if (currentPage > 1) {
                 currentPage--;
                 renderPage(currentPage);
-            }
-        });
-
-        // Auto-scroll to the next page when the user scrolls down
-        window.addEventListener('scroll', function() {
-            // Get the position of the page scroll
-            const scrollPosition = window.scrollY + window.innerHeight;
-            const docHeight = document.documentElement.scrollHeight;
-
-            // If the user has scrolled to the bottom of the page
-            if (scrollPosition >= docHeight) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                }
             }
         });
     </script>
