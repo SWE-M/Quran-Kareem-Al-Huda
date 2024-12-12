@@ -89,21 +89,6 @@
         #pdf-navigation button:hover {
             background-color: #555;
         }
-
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
@@ -119,10 +104,12 @@
     </div>
 
     <!-- PDF Navigation -->
-    <div id="pdf-navigation">
-        <button id="prev-page">السابق</button>
-        <button id="next-page">التالي</button>
-    </div>
+    <!-- PDF Navigation -->
+<div id="pdf-navigation">
+    <button id="prev-page">&#8592;</button> <!-- السهم لليسار -->
+    <button id="next-page">&#8594;</button> <!-- السهم لليمين -->
+</div>
+
 
     <!-- PDF Container -->
     <div id="pdf-container">
@@ -183,6 +170,21 @@
             if (currentPage > 1) {
                 currentPage--;
                 renderPage(currentPage);
+            }
+        });
+
+        // Auto-scroll to the next page when the user scrolls down
+        window.addEventListener('scroll', function() {
+            // Get the position of the page scroll
+            const scrollPosition = window.scrollY + window.innerHeight;
+            const docHeight = document.documentElement.scrollHeight;
+
+            // If the user has scrolled to the bottom of the page
+            if (scrollPosition >= docHeight) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
             }
         });
     </script>
