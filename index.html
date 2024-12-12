@@ -6,7 +6,6 @@
     <title>القرآن الكريم - الهدى</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css" />
     <style>
-        /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -16,50 +15,7 @@
             height: 100%;
             overflow: hidden;
             display: flex;
-            flex-direction: row;
-        }
-
-        /* Sidebar styles for the index */
-        #sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            width: 250px;
-            height: 100%;
-            padding: 10px;
-            overflow-y: auto;
-            display: none; /* Hidden by default */
-        }
-
-        #sidebar h3 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #sidebar li {
-            cursor: pointer;
-            padding: 8px;
-            text-align: right;
-            border-bottom: 1px solid #444;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        #sidebar li:hover {
-            background-color: #444;
-        }
-
-        #sidebar img {
-            max-height: 30px;
-            margin-left: 10px;
+            flex-direction: column;
         }
 
         /* PDF Container */
@@ -75,18 +31,50 @@
         #pdf-viewer {
             width: 100%;
             height: 100%;
+            overflow: auto;
+        }
+
+        /* Controls for PDF Navigation */
+        #controls {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #controls button {
+            background-color: #444;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        #controls button:hover {
+            background-color: #666;
         }
 
         /* Button to toggle the sidebar */
         #toggle-sidebar {
             position: fixed;
             top: 10px;
-            right: 10px;
+            left: 10px;
             background-color: #444;
             color: #fff;
             padding: 10px;
             cursor: pointer;
             border: none;
+            border-radius: 5px;
+            z-index: 5;
         }
 
         /* Splash Screen */
@@ -140,24 +128,10 @@
         <div id="pdf-viewer"></div>
     </div>
 
-    <!-- Sidebar for Quran Index -->
-    <div id="sidebar">
-        <h3>فهرس السور</h3>
-        <ul>
-            <li data-page="1" onclick="goToPage(1)">
-                الفاتحة (1)
-                <img src="images/fatiha.jpg" alt="الفاتحة">
-            </li>
-            <li data-page="2" onclick="goToPage(2)">
-                البقرة (2)
-                <img src="images/baqara.jpg" alt="البقرة">
-            </li>
-            <li data-page="3" onclick="goToPage(3)">
-                آل عمران (3)
-                <img src="images/al_imran.jpg" alt="آل عمران">
-            </li>
-            <!-- Add other surahs here -->
-        </ul>
+    <!-- Controls for navigating the PDF -->
+    <div id="controls">
+        <button id="prev-page">الصفحة السابقة</button>
+        <button id="next-page">الصفحة التالية</button>
     </div>
 
     <!-- Toggle Sidebar Button -->
@@ -181,6 +155,7 @@
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
+                document.getElementById("pdf-viewer").innerHTML = '';  // Clear previous content
                 document.getElementById("pdf-viewer").appendChild(canvas);
                 const renderContext = {
                     canvasContext: ctx,
@@ -202,13 +177,21 @@
             renderPage(pageNum);
         });
 
-        // Navigating to specific page from the index
-        function goToPage(pageNumber) {
-            pageNum = pageNumber;
-            document.getElementById("pdf-viewer").innerHTML = '';  // Clear previous content
-            renderPage(pageNum);
-            toggleSidebar();  // Close sidebar after page selection
-        }
+        // Next Page
+        document.getElementById('next-page').addEventListener('click', function() {
+            if (pageNum < pdfDoc.numPages) {
+                pageNum++;
+                renderPage(pageNum);
+            }
+        });
+
+        // Previous Page
+        document.getElementById('prev-page').addEventListener('click', function() {
+            if (pageNum > 1) {
+                pageNum--;
+                renderPage(pageNum);
+            }
+        });
 
         // Toggle sidebar visibility
         function toggleSidebar() {
