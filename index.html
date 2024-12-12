@@ -14,21 +14,6 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
-        }
-
-        /* Button for dark mode */
-        #dark-mode-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 999;
         }
 
         /* PDF Container */
@@ -123,9 +108,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
-    <!-- Button to toggle dark mode -->
-    <button id="dark-mode-btn">تخفيض الإضاءة</button>
-
     <!-- Splash Screen -->
     <div id="splash-screen">
         <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
@@ -148,18 +130,6 @@
     </div>
 
     <script>
-        // Toggle dark mode on button click
-        const darkModeBtn = document.getElementById('dark-mode-btn');
-        darkModeBtn.addEventListener('click', () => {
-            if (document.body.style.filter === 'brightness(0.5)') {
-                document.body.style.filter = 'brightness(1)';
-                darkModeBtn.textContent = 'تخفيض الإضاءة'; // Change button text
-            } else {
-                document.body.style.filter = 'brightness(0.5)';
-                darkModeBtn.textContent = 'إعادة الإضاءة'; // Change button text
-            }
-        });
-
         // Hide splash screen after 2 seconds
         window.onload = function() {
             setTimeout(() => {
