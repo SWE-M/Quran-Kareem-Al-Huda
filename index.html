@@ -100,13 +100,46 @@
     </div>
 
     <script>
-        // Variables for PDF
+        // Click event to navigate between pages based on screen area clicked
+        document.body.addEventListener('click', function(e) {
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            // If clicked on the left half of the screen, go to the next page
+            if (clickX < screenWidth / 2) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            }
+            // If clicked on the right half of the screen, go to the previous page
+            else {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            }
+        });
+
+        // Hide splash screen after 2 seconds
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
+
+        // PDF.js setup
+        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
+        let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
+
+        // Canvas rendering for PDF
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
-        const url = 'E-Quran-mobile.pdf';  // Path to your PDF file
-        let pdfDoc = null;
 
         // Load the PDF document
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
@@ -127,60 +160,6 @@
                 });
             });
         }
-
-        // Touch event for detecting touch gestures for dark mode and page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].clientX;
-            touchEndY = e.changedTouches[0].clientY;
-            const touchDifferenceX = touchEndX - touchStartX;
-            const touchDifferenceY = touchEndY - touchStartY;
-
-            // Detect touch on left side of screen (next page)
-            if (touchStartX < window.innerWidth / 2 && touchDifferenceX < -50) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                }
-            }
-
-            // Detect touch on right side of screen (previous page)
-            if (touchStartX > window.innerWidth / 2 && touchDifferenceX > 50) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                }
-            }
-
-            // Dark mode: If swipe is downward, apply dark filter (reduce brightness)
-            if (touchDifferenceY > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-            }
-
-            // Dark mode: If swipe is upward, remove dark filter (increase brightness)
-            if (touchDifferenceY < -50) {
-                document.body.style.filter = 'brightness(1)';
-            }
-        });
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
     </script>
 </body>
 </html>
