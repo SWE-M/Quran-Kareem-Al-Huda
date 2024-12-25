@@ -132,6 +132,7 @@
                 if (currentPage < totalPages) {
                     currentPage++;
                     renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
                 }
             }
 
@@ -140,6 +141,7 @@
                 if (currentPage > 1) {
                     currentPage--;
                     renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
                 }
             }
         });
@@ -154,6 +156,7 @@
                 if (currentPage < totalPages) {
                     currentPage++;
                     renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
                 }
             }
             // If clicked on the right half of the screen, go to the previous page
@@ -161,6 +164,7 @@
                 if (currentPage > 1) {
                     currentPage--;
                     renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
                 }
             }
         });
@@ -173,6 +177,13 @@
                     document.getElementById('splash-screen').style.display = 'none';
                 }, 500);
             }, 2000);
+
+            // Retrieve saved page on load
+            const savedPage = localStorage.getItem('currentPage');
+            if (savedPage) {
+                currentPage = parseInt(savedPage);
+                renderPage(currentPage);
+            }
         };
 
         // PDF.js setup
@@ -189,6 +200,13 @@
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
+
+            // Retrieve saved page on load
+            const savedPage = localStorage.getItem('currentPage');
+            if (savedPage) {
+                currentPage = parseInt(savedPage);
+            }
+
             renderPage(currentPage);
         });
 
