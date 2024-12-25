@@ -124,27 +124,40 @@
             const touchDifferenceX = touchEndX - touchStartX;
             const touchDifferenceY = touchEndY - touchStartY;
 
-            // If swipe is horizontal (left-right or right-left)
+            // إذا كان السحب أفقي (يسارًا أو يمينًا)
             if (Math.abs(touchDifferenceX) > Math.abs(touchDifferenceY)) {
                 if (Math.abs(touchDifferenceX) > swipeThreshold) {
                     if (debounceTimeout) clearTimeout(debounceTimeout);
 
                     debounceTimeout = setTimeout(function() {
-                        // Swipe Left (Next Page)
+                        // سحب لليسار (الانتقال للصفحة التالية)
                         if (touchDifferenceX < -swipeThreshold) {
                             if (currentPage < totalPages) {
                                 currentPage++;
                                 renderPage(currentPage);
                             }
                         }
-                        // Swipe Right (Previous Page)
+                        // سحب لليمين (الانتقال للصفحة السابقة)
                         if (touchDifferenceX > swipeThreshold) {
                             if (currentPage > 1) {
                                 currentPage--;
                                 renderPage(currentPage);
                             }
                         }
-                    }, 300); // delay to prevent multiple page changes at once
+                    }, 300); // تأخير لمنع التنقل المتعدد
+                }
+            }
+
+            // إذا كان السحب عمودي (أعلى أو أسفل)
+            if (Math.abs(touchDifferenceY) > swipeThreshold) {
+                if (touchDifferenceY > swipeThreshold) {
+                    // سحب لأسفل (تفعيل الوضع الداكن)
+                    document.body.style.filter = 'brightness(0.5)';
+                }
+
+                if (touchDifferenceY < -swipeThreshold) {
+                    // سحب لأعلى (إيقاف الوضع الداكن)
+                    document.body.style.filter = 'brightness(1)';
                 }
             }
         });
