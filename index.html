@@ -100,6 +100,50 @@
     </div>
 
     <script>
+        // Touch event for detecting swipe gestures for dark mode and page navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.body.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.body.addEventListener('touchmove', (e) => {
+            touchEndX = e.touches[0].clientX;
+            touchEndY = e.touches[0].clientY;
+            const touchDifferenceX = touchEndX - touchStartX;
+            const touchDifferenceY = touchEndY - touchStartY;
+
+            // If swipe is downward, apply dark filter (reduce brightness)
+            if (touchDifferenceY > 50) {
+                document.body.style.filter = 'brightness(0.5)';
+            }
+
+            // If swipe is upward, remove dark filter (increase brightness)
+            if (touchDifferenceY < -50) {
+                document.body.style.filter = 'brightness(1)';
+            }
+
+            // If swipe is to the left, go to the next page
+            if (touchDifferenceX < -50) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            }
+
+            // If swipe is to the right, go to the previous page
+            if (touchDifferenceX > 50) {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            }
+        });
+
         // Click event to navigate between pages based on screen area clicked
         document.body.addEventListener('click', function(e) {
             const screenWidth = window.innerWidth;
