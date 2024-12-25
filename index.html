@@ -105,6 +105,10 @@
         let touchEndX = 0;
         let touchStartY = 0;
         let touchEndY = 0;
+        let swipeThreshold = 50; // الحد الأدنى للمسافة المسموح بها لتسجيل السحب
+        let debounceTimeout = null; // لتأخير بين التنقلات
+        let currentPage = 1;
+        let totalPages = 0;
 
         document.body.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
@@ -114,32 +118,33 @@
         document.body.addEventListener('touchmove', (e) => {
             touchEndX = e.touches[0].clientX;
             touchEndY = e.touches[0].clientY;
+        });
+
+        document.body.addEventListener('touchend', (e) => {
             const touchDifferenceX = touchEndX - touchStartX;
             const touchDifferenceY = touchEndY - touchStartY;
 
-            // If swipe is downward, apply dark filter (reduce brightness)
-            if (touchDifferenceY > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-            }
+            // If swipe is horizontal (left-right or right-left)
+            if (Math.abs(touchDifferenceX) > Math.abs(touchDifferenceY)) {
+                if (Math.abs(touchDifferenceX) > swipeThreshold) {
+                    if (debounceTimeout) clearTimeout(debounceTimeout);
 
-            // If swipe is upward, remove dark filter (increase brightness)
-            if (touchDifferenceY < -50) {
-                document.body.style.filter = 'brightness(1)';
-            }
-
-            // If swipe is to the left, go to the next page
-            if (touchDifferenceX < -50) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                }
-            }
-
-            // If swipe is to the right, go to the previous page
-            if (touchDifferenceX > 50) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
+                    debounceTimeout = setTimeout(function() {
+                        // Swipe Left (Next Page)
+                        if (touchDifferenceX < -swipeThreshold) {
+                            if (currentPage < totalPages) {
+                                currentPage++;
+                                renderPage(currentPage);
+                            }
+                        }
+                        // Swipe Right (Previous Page)
+                        if (touchDifferenceX > swipeThreshold) {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                renderPage(currentPage);
+                            }
+                        }
+                    }, 300); // delay to prevent multiple page changes at once
                 }
             }
         });
@@ -157,8 +162,6 @@
         // PDF.js setup
         const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
         let pdfDoc = null;
-        let currentPage = 1;
-        let totalPages = 0;
 
         // Canvas rendering for PDF
         const canvas = document.getElementById('pdf-canvas');
