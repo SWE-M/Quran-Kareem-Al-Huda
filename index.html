@@ -100,12 +100,6 @@
     </div>
 
     <script>
-        // Touch event for detecting touch gestures for dark mode and page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
-
         // Variables for PDF
         let currentPage = 1;
         let totalPages = 0;
@@ -134,7 +128,12 @@
             });
         }
 
-        // Touch event for detecting touch gestures
+        // Touch event for detecting touch gestures for dark mode and page navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
         document.body.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
@@ -160,6 +159,16 @@
                     currentPage--;
                     renderPage(currentPage);
                 }
+            }
+
+            // Dark mode: If swipe is downward, apply dark filter (reduce brightness)
+            if (touchDifferenceY > 50) {
+                document.body.style.filter = 'brightness(0.5)';
+            }
+
+            // Dark mode: If swipe is upward, remove dark filter (increase brightness)
+            if (touchDifferenceY < -50) {
+                document.body.style.filter = 'brightness(1)';
             }
         });
 
