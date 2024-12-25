@@ -132,7 +132,6 @@
                 if (currentPage < totalPages) {
                     currentPage++;
                     renderPage(currentPage);
-                    savePage(currentPage);  // Save the current page number
                 }
             }
 
@@ -141,7 +140,27 @@
                 if (currentPage > 1) {
                     currentPage--;
                     renderPage(currentPage);
-                    savePage(currentPage);  // Save the current page number
+                }
+            }
+        });
+
+        // Click event to navigate between pages based on screen area clicked
+        document.body.addEventListener('click', function(e) {
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            // If clicked on the left half of the screen, go to the next page
+            if (clickX < screenWidth / 2) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            }
+            // If clicked on the right half of the screen, go to the previous page
+            else {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
                 }
             }
         });
@@ -170,13 +189,6 @@
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
-
-            // Check if the user has previously saved a page
-            const savedPage = localStorage.getItem('savedPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);  // Set to saved page
-            }
-
             renderPage(currentPage);
         });
 
@@ -191,11 +203,6 @@
                     viewport: viewport
                 });
             });
-        }
-
-        // Save current page number in localStorage
-        function savePage(pageNum) {
-            localStorage.setItem('savedPage', pageNum);
         }
     </script>
 </body>
