@@ -79,8 +79,51 @@
                 height: 100%;
             }
         }
+
+        /* Sidebar Index Styles */
+        #index-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #333;
+            color: #fff;
+            overflow-y: auto;
+            z-index: 10000;
+            display: none; /* Initially hidden */
+            transition: transform 0.3s ease;
+            transform: translateX(-100%); /* Hide sidebar */
+        }
+
+        #index-sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #index-sidebar ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #index-sidebar ul li:hover {
+            background-color: #444;
+        }
+
+        /* Toggle button */
+        #index-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #444;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 9999;
+        }
+
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
 
@@ -94,12 +137,151 @@
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
+    <!-- Sidebar Index -->
+    <div id="index-sidebar">
+        <ul>
+            <li onclick="goToPage(1)">1- الفاتحة</li>
+            <li onclick="goToPage(2)">2- البقرة</li>
+            <li onclick="goToPage(3)">3- آل عمران</li>
+            <li onclick="goToPage(4)">4- النساء</li>
+            <li onclick="goToPage(5)">5- المائدة</li>
+            <li onclick="goToPage(6)">6- الأنعام</li>
+            <li onclick="goToPage(7)">7- الأعراف</li>
+            <li onclick="goToPage(8)">8- الأنفال</li>
+            <li onclick="goToPage(9)">9- التوبة</li>
+            <li onclick="goToPage(10)">10- يونس</li>
+            <li onclick="goToPage(11)">11- هود</li>
+            <li onclick="goToPage(12)">12- يوسف</li>
+            <li onclick="goToPage(13)">13- الرعد</li>
+            <li onclick="goToPage(14)">14- إبراهيم</li>
+            <li onclick="goToPage(15)">15- الحجر</li>
+            <li onclick="goToPage(16)">16- النحل</li>
+            <li onclick="goToPage(17)">17- الإسراء</li>
+            <li onclick="goToPage(18)">18- الكهف</li>
+            <li onclick="goToPage(19)">19- مريم</li>
+            <li onclick="goToPage(20)">20- طه</li>
+            <li onclick="goToPage(21)">21- الأنبياء</li>
+            <li onclick="goToPage(22)">22- الحج</li>
+            <li onclick="goToPage(23)">23- المؤمنون</li>
+            <li onclick="goToPage(24)">24- النور</li>
+            <li onclick="goToPage(25)">25- الفرقان</li>
+            <li onclick="goToPage(26)">26- الشعراء</li>
+            <li onclick="goToPage(27)">27- النمل</li>
+            <li onclick="goToPage(28)">28- القصص</li>
+            <li onclick="goToPage(29)">29- العنكبوت</li>
+            <li onclick="goToPage(30)">30- الروم</li>
+            <li onclick="goToPage(31)">31- لقمان</li>
+            <li onclick="goToPage(32)">32- السجدة</li>
+            <li onclick="goToPage(33)">33- الأحزاب</li>
+            <li onclick="goToPage(34)">34- سبأ</li>
+            <li onclick="goToPage(35)">35- فاطر</li>
+            <li onclick="goToPage(36)">36- يس</li>
+            <li onclick="goToPage(37)">37- الصافات</li>
+            <li onclick="goToPage(38)">38- ص</li>
+            <li onclick="goToPage(39)">39- الزمر</li>
+            <li onclick="goToPage(40)">40- غافر</li>
+            <li onclick="goToPage(41)">41- فصلت</li>
+            <li onclick="goToPage(42)">42- الشورى</li>
+            <li onclick="goToPage(43)">43- الزخرف</li>
+            <li onclick="goToPage(44)">44- الدخان</li>
+            <li onclick="goToPage(45)">45- الجاثية</li>
+            <li onclick="goToPage(46)">46- الأحقاف</li>
+            <li onclick="goToPage(47)">47- محمد</li>
+            <li onclick="goToPage(48)">48- الفتح</li>
+            <li onclick="goToPage(49)">49- الحجرات</li>
+            <li onclick="goToPage(50)">50- ق</li>
+            <li onclick="goToPage(51)">51- الذاريات</li>
+            <li onclick="goToPage(52)">52- الطور</li>
+            <li onclick="goToPage(53)">53- النجم</li>
+            <li onclick="goToPage(54)">54- القمر</li>
+            <li onclick="goToPage(55)">55- الرحمن</li>
+            <li onclick="goToPage(56)">56- الواقعة</li>
+            <li onclick="goToPage(57)">57- الحديد</li>
+            <li onclick="goToPage(58)">58- المجادلة</li>
+            <li onclick="goToPage(59)">59- الحشر</li>
+            <li onclick="goToPage(60)">60- الممتحنة</li>
+            <li onclick="goToPage(61)">61- الصف</li>
+            <li onclick="goToPage(62)">62- الجمعة</li>
+            <li onclick="goToPage(63)">63- المنافقون</li>
+            <li onclick="goToPage(64)">64- التغابن</li>
+            <li onclick="goToPage(65)">65- الطلاق</li>
+            <li onclick="goToPage(66)">66- التحريم</li>
+            <li onclick="goToPage(67)">67- الملك</li>
+            <li onclick="goToPage(68)">68- القلم</li>
+            <li onclick="goToPage(69)">69- الحاقة</li>
+            <li onclick="goToPage(70)">70- المعارج</li>
+            <li onclick="goToPage(71)">71- نوح</li>
+            <li onclick="goToPage(72)">72- الجن</li>
+            <li onclick="goToPage(73)">73- المزمل</li>
+            <li onclick="goToPage(74)">74- المدثر</li>
+            <li onclick="goToPage(75)">75- القيامة</li>
+            <li onclick="goToPage(76)">76- الإنسان</li>
+            <li onclick="goToPage(77)">77- المرسلات</li>
+            <li onclick="goToPage(78)">78- النبأ</li>
+            <li onclick="goToPage(79)">79- النازعات</li>
+            <li onclick="goToPage(80)">80- عبس</li>
+            <li onclick="goToPage(81)">81- التكوير</li>
+            <li onclick="goToPage(82)">82- الانفطار</li>
+            <li onclick="goToPage(83)">83- المطففين</li>
+            <li onclick="goToPage(84)">84- الانشقاق</li>
+            <li onclick="goToPage(85)">85- البروج</li>
+            <li onclick="goToPage(86)">86- الطارق</li>
+            <li onclick="goToPage(87)">87- الأعلى</li>
+            <li onclick="goToPage(88)">88- الغاشية</li>
+            <li onclick="goToPage(89)">89- الفجر</li>
+            <li onclick="goToPage(90)">90- البلد</li>
+            <li onclick="goToPage(91)">91- الشمس</li>
+            <li onclick="goToPage(92)">92- الليل</li>
+            <li onclick="goToPage(93)">93- الضحى</li>
+            <li onclick="goToPage(94)">94- الشرح</li>
+            <li onclick="goToPage(95)">95- التين</li>
+            <li onclick="goToPage(96)">96- العلق</li>
+            <li onclick="goToPage(97)">97- القدر</li>
+            <li onclick="goToPage(98)">98- البينة</li>
+            <li onclick="goToPage(99)">99- الزلزلة</li>
+            <li onclick="goToPage(100)">100- العاديات</li>
+            <li onclick="goToPage(101)">101- القارعة</li>
+            <li onclick="goToPage(102)">102- التكاثر</li>
+            <li onclick="goToPage(103)">103- العصر</li>
+            <li onclick="goToPage(104)">104- الهمزة</li>
+            <li onclick="goToPage(105)">105- الفيل</li>
+            <li onclick="goToPage(106)">106- قريش</li>
+            <li onclick="goToPage(107)">107- الماعون</li>
+            <li onclick="goToPage(108)">108- الكوثر</li>
+            <li onclick="goToPage(109)">109- الكافرون</li>
+            <li onclick="goToPage(110)">110- النصر</li>
+            <li onclick="goToPage(111)">111- المسد</li>
+            <li onclick="goToPage(112)">112- الإخلاص</li>
+            <li onclick="goToPage(113)">113- الفلق</li>
+            <li onclick="goToPage(114)">114- الناس</li>
+        </ul>
+    </div>
+
+    <!-- Toggle Button to show/hide index -->
+    <div id="index-toggle" onclick="toggleIndex()">☰ فهرس السور</div>
+
     <!-- PDF Container -->
     <div id="pdf-container">
         <canvas id="pdf-canvas"></canvas>
     </div>
 
     <script>
+        // Function to toggle the visibility of the index sidebar
+        function toggleIndex() {
+            const sidebar = document.getElementById('index-sidebar');
+            const transformValue = sidebar.style.transform === 'translateX(0%)' ? '-100%' : 'translateX(0%)';
+            sidebar.style.transform = transformValue;
+            sidebar.style.display = 'block'; // Ensure it's visible during animation
+        }
+
+        // Function to navigate to a specific page
+        function goToPage(pageNum) {
+            currentPage = pageNum;
+            renderPage(currentPage);
+            localStorage.setItem('currentPage', currentPage); // Save the page number
+            toggleIndex(); // Close the sidebar after selection
+        }
+
         // Touch event for detecting swipe gestures for dark mode and page navigation
         let touchStartX = 0;
         let touchEndX = 0;
@@ -225,3 +407,5 @@
     </script>
 </body>
 </html>
+
+            
