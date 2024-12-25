@@ -100,85 +100,19 @@
     </div>
 
     <script>
-        // Touch event for detecting swipe gestures for dark mode and page navigation
+        // Touch event for detecting touch gestures for dark mode and page navigation
         let touchStartX = 0;
         let touchEndX = 0;
         let touchStartY = 0;
         let touchEndY = 0;
-        let swipeThreshold = 50; // الحد الأدنى للمسافة المسموح بها لتسجيل السحب
-        let debounceTimeout = null; // لتأخير بين التنقلات
+
+        // Variables for PDF
         let currentPage = 1;
         let totalPages = 0;
-
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchmove', (e) => {
-            touchEndX = e.touches[0].clientX;
-            touchEndY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchend', (e) => {
-            const touchDifferenceX = touchEndX - touchStartX;
-            const touchDifferenceY = touchEndY - touchStartY;
-
-            // إذا كان السحب أفقي (يسارًا أو يمينًا)
-            if (Math.abs(touchDifferenceX) > Math.abs(touchDifferenceY)) {
-                if (Math.abs(touchDifferenceX) > swipeThreshold) {
-                    if (debounceTimeout) clearTimeout(debounceTimeout);
-
-                    debounceTimeout = setTimeout(function() {
-                        // سحب لليسار (الانتقال للصفحة التالية)
-                        if (touchDifferenceX < -swipeThreshold) {
-                            if (currentPage < totalPages) {
-                                currentPage++;
-                                renderPage(currentPage);
-                            }
-                        }
-                        // سحب لليمين (الانتقال للصفحة السابقة)
-                        if (touchDifferenceX > swipeThreshold) {
-                            if (currentPage > 1) {
-                                currentPage--;
-                                renderPage(currentPage);
-                            }
-                        }
-                    }, 300); // تأخير لمنع التنقل المتعدد
-                }
-            }
-
-            // إذا كان السحب عمودي (أعلى أو أسفل)
-            if (Math.abs(touchDifferenceY) > swipeThreshold) {
-                if (touchDifferenceY > swipeThreshold) {
-                    // سحب لأسفل (تفعيل الوضع الداكن)
-                    document.body.style.filter = 'brightness(0.5)';
-                }
-
-                if (touchDifferenceY < -swipeThreshold) {
-                    // سحب لأعلى (إيقاف الوضع الداكن)
-                    document.body.style.filter = 'brightness(1)';
-                }
-            }
-        });
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
-        let pdfDoc = null;
-
-        // Canvas rendering for PDF
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
+        const url = 'E-Quran-mobile.pdf';  // Path to your PDF file
+        let pdfDoc = null;
 
         // Load the PDF document
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
@@ -199,6 +133,55 @@
                 });
             });
         }
+
+        // Touch event for detecting swipe gestures
+        document.body.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.body.addEventListener('touchmove', (e) => {
+            touchEndX = e.touches[0].clientX;
+            touchEndY = e.touches[0].clientY;
+            const touchDifferenceX = touchEndX - touchStartX;
+            const touchDifferenceY = touchEndY - touchStartY;
+
+            // If swipe is downward, apply dark filter (reduce brightness)
+            if (touchDifferenceY > 50) {
+                document.body.style.filter = 'brightness(0.5)';
+            }
+
+            // If swipe is upward, remove dark filter (increase brightness)
+            if (touchDifferenceY < -50) {
+                document.body.style.filter = 'brightness(1)';
+            }
+
+            // If swipe is to the left, go to the next page
+            if (touchDifferenceX < -50) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            }
+
+            // If swipe is to the right, go to the previous page
+            if (touchDifferenceX > 50) {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            }
+        });
+
+        // Hide splash screen after 2 seconds
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
     </script>
 </body>
 </html>
