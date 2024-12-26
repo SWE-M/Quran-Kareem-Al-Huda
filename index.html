@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
     <style>
         body, html {
@@ -154,7 +154,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
-        let scale = 1; // Initial scale, will adjust dynamically
+        let scale = 1.5; // Standard scale for better visibility
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
         const controls = document.getElementById('controls');
@@ -169,13 +169,12 @@
         // Function to calculate scale based on screen width
         function calculateScale() {
             const windowWidth = window.innerWidth;
-            // Adjust scale based on screen size (higher scale for mobile and tablets)
             if (windowWidth <= 480) {
-                return 0.8; // Reduced scale for mobile to fit screen
+                return 1; // scale for small screens (mobiles)
             } else if (windowWidth <= 768) {
-                return 1.2; // Slight zoom for tablets
+                return 1.5; // scale for medium screens (tablets)
             } else {
-                return 1.5; // Default scale for larger screens
+                return 1.8; // scale for larger screens
             }
         }
 
@@ -205,17 +204,22 @@
         document.body.addEventListener('mousemove', showControls);
         document.body.addEventListener('touchstart', showControls);
 
-        document.body.addEventListener('dblclick', toggleControls); // Add double tap functionality
+        document.body.addEventListener('dblclick', toggleControls);
 
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then((page) => {
                 const viewport = page.getViewport({ scale });
-                canvas.height = viewport.height * window.devicePixelRatio; // Ensure high resolution
-                canvas.width = viewport.width * window.devicePixelRatio; // Ensure high resolution
+                // Increase the canvas resolution using devicePixelRatio for higher quality
+                const canvasWidth = viewport.width * window.devicePixelRatio;
+                const canvasHeight = viewport.height * window.devicePixelRatio;
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+
                 const renderContext = {
                     canvasContext: ctx,
                     viewport: viewport,
                 };
+
                 page.render(renderContext);
             });
         }
@@ -226,7 +230,7 @@
         });
 
         document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 0.8) {
+            if (scale > 1) {
                 scale -= 0.2;
                 renderPage(currentPage);
             }
@@ -276,7 +280,6 @@
         pdfjsLib.getDocument('E-Quran-mobile.pdf').promise.then((pdf) => {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
-            scale = calculateScale(); // Adjust scale based on screen size
             renderPage(currentPage); // Render the saved page
         });
 
