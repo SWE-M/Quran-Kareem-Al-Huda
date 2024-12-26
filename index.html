@@ -159,7 +159,6 @@
         const ctx = canvas.getContext('2d');
         const controls = document.getElementById('controls');
         let timeout;
-        let doubleTap = false;
 
         // Try to get the saved page number from localStorage
         const savedPage = localStorage.getItem('currentPage');
@@ -172,11 +171,11 @@
             const windowWidth = window.innerWidth;
             // Adjust scale based on screen size (higher scale for mobile and tablets)
             if (windowWidth <= 480) {
-                return 1.5; // Better quality for smaller screens (Mobile)
+                return 1.0; // No zoom for mobile
             } else if (windowWidth <= 768) {
-                return 2; // Medium scale for tablets
+                return 1.5; // Slight zoom for tablets
             } else {
-                return 2.5; // Larger scale for desktops
+                return 1.8; // Default scale for larger screens
             }
         }
 
