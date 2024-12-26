@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>القرآن الكريم - الهدى</title>
     <style>
         body, html {
@@ -169,9 +169,8 @@
 
         // Function to calculate the scale based on window width
         function calculateScale() {
-            const pageWidth = 800; // Assume that the default PDF page width is 800px
             const windowWidth = window.innerWidth;
-            return windowWidth / pageWidth;
+            return windowWidth / 800; // Use 800 as the base PDF page width, this can be adjusted
         }
 
         // Adjust scale when the window is resized
