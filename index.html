@@ -171,11 +171,11 @@
             const windowWidth = window.innerWidth;
             // Adjust scale based on screen size (higher scale for mobile and tablets)
             if (windowWidth <= 480) {
-                return 1.0; // No zoom for mobile
+                return 0.8; // Reduced scale for mobile to fit screen
             } else if (windowWidth <= 768) {
-                return 1.5; // Slight zoom for tablets
+                return 1.2; // Slight zoom for tablets
             } else {
-                return 1.8; // Default scale for larger screens
+                return 1.5; // Default scale for larger screens
             }
         }
 
@@ -226,7 +226,7 @@
         });
 
         document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 1) {
+            if (scale > 0.8) {
                 scale -= 0.2;
                 renderPage(currentPage);
             }
