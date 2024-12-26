@@ -14,6 +14,7 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
+            transition: filter 0.3s ease;
         }
 
         /* Splash Screen */
@@ -38,16 +39,9 @@
             max-height: 80%;
         }
 
-        #splash-screen h1 {
-            margin: 20px 0 0;
-            font-size: 1.5rem;
+        #splash-screen h1, #splash-screen p {
             text-align: center;
-        }
-
-        #splash-screen p {
-            margin-top: 10px;
-            font-size: 1.2rem;
-            text-align: center;
+            margin: 10px 0;
         }
 
         /* PDF Container */
@@ -63,45 +57,48 @@
             overflow: auto;
         }
 
+        #pdf-canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Controls */
         #controls {
             position: fixed;
             bottom: 10px;
-            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: center;
-            align-items: center;
             gap: 10px;
             z-index: 1000;
-            transition: opacity 0.3s;
         }
 
         #controls button {
-            padding: 10px 20px;
-            background-color: #444;
+            background-color: #333;
             color: #fff;
             border: none;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 10px 20px;
             cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
         }
 
         #controls button:hover {
-            background-color: #666;
+            background-color: #555;
         }
 
         /* Table of Contents */
         #toc {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 80%;
             overflow-y: auto;
-            padding: 20px;
             display: none;
-            z-index: 1000;
         }
 
         #toc ul {
@@ -109,34 +106,14 @@
             padding: 0;
         }
 
-        #toc ul li {
-            margin-bottom: 10px;
-        }
-
-        #toc ul li a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        #toc ul li a:hover {
-            text-decoration: underline;
-        }
-
-        #toggle-toc {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #444;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
+        #toc li {
+            margin: 5px 0;
             cursor: pointer;
-            z-index: 1001;
+            color: #00f;
         }
 
-        #toggle-toc:hover {
-            background-color: #666;
+        #toc li:hover {
+            text-decoration: underline;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -149,7 +126,7 @@
         <h1>القرآن الكريم - الهدى</h1>
         <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
         <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لوالديّ</p>
+        <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
@@ -162,84 +139,90 @@
     <div id="controls">
         <button id="zoom-in">تكبير</button>
         <button id="zoom-out">تصغير</button>
+        <button id="toggle-toc">فهرس</button>
     </div>
 
     <!-- Table of Contents -->
-    <button id="toggle-toc">📖 الفهرس</button>
     <div id="toc">
         <ul>
-            <li><a href="#" onclick="goToPage(1)">الفاتحة</a></li>
-            <li><a href="#" onclick="goToPage(2)">البقرة</a></li>
-            <li><a href="#" onclick="goToPage(3)">آل عمران</a></li>
-            <!-- Add more as needed -->
+            <li data-page="1">الصفحة الأولى</li>
+            <li data-page="2">الصفحة الثانية</li>
+            <li data-page="3">الصفحة الثالثة</li>
+            <!-- Add more pages as needed -->
         </ul>
     </div>
 
     <script>
-        let scale = 1.5; // Default scale
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-        const controls = document.getElementById('controls');
-        const toc = document.getElementById('toc');
-        const toggleToc = document.getElementById('toggle-toc');
-
-        let timeout;
-
-        // Show/Hide Controls on interaction
-        document.body.addEventListener('mousemove', () => {
-            controls.style.opacity = '1';
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                controls.style.opacity = '0';
-            }, 3000);
-        });
-
-        // Toggle TOC visibility
-        toggleToc.addEventListener('click', () => {
-            toc.style.display = toc.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // Zoom In/Out functionality
-        document.getElementById('zoom-in').addEventListener('click', () => {
-            scale += 0.2;
-            renderPage(currentPage);
-        });
-
-        document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 0.5) scale -= 0.2;
-            renderPage(currentPage);
-        });
-
-        // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';
+        const url = 'E-Quran-mobile.pdf'; // Change this to the actual path of your PDF
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
+        let scale = 1.5; // Default scale
 
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Load PDF
+        pdfjsLib.getDocument(url).promise.then(pdf => {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
             renderPage(currentPage);
         });
 
         function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
+            pdfDoc.getPage(pageNum).then(page => {
                 const viewport = page.getViewport({ scale });
-                canvas.height = viewport.height;
                 canvas.width = viewport.width;
-                page.render({
+                canvas.height = viewport.height;
+
+                const renderContext = {
                     canvasContext: ctx,
-                    viewport
-                });
+                    viewport: viewport
+                };
+
+                page.render(renderContext);
             });
         }
 
-        function goToPage(pageNum) {
-            if (pageNum > 0 && pageNum <= totalPages) {
-                currentPage = pageNum;
+        // Zoom In
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            scale += 0.1;
+            renderPage(currentPage);
+        });
+
+        // Zoom Out
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            if (scale > 0.5) {
+                scale -= 0.1;
                 renderPage(currentPage);
             }
-        }
+        });
+
+        // Table of Contents
+        document.getElementById('toggle-toc').addEventListener('click', () => {
+            const toc = document.getElementById('toc');
+            toc.style.display = toc.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('toc').addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const pageNum = parseInt(e.target.getAttribute('data-page'));
+                if (pageNum && pageNum <= totalPages) {
+                    currentPage = pageNum;
+                    renderPage(currentPage);
+                }
+            }
+        });
+
+        // Hide splash screen
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
     </script>
 </body>
 </html>
