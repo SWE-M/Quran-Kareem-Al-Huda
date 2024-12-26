@@ -193,6 +193,25 @@
                 }, 500);
             }, 2000);
         };
+
+        // Timer for hiding the index panel
+        let hideTimeout;
+
+        // Show the index panel when there is any touch or click
+        function showIndexPanel() {
+            const indexPanel = document.getElementById('index-panel');
+            indexPanel.style.display = 'block';
+
+            // Reset the timeout to hide the panel after 2 seconds of inactivity
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(function() {
+                indexPanel.style.display = 'none';
+            }, 2000);
+        }
+
+        // Add event listeners for touch and click
+        document.body.addEventListener('touchstart', showIndexPanel);
+        document.body.addEventListener('click', showIndexPanel);
     </script>
 </body>
 </html>
