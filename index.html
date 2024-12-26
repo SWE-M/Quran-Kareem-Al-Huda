@@ -99,6 +99,8 @@
             z-index: 10;
             display: flex;
             gap: 10px;
+            opacity: 1;
+            transition: opacity 0.3s ease; /* Smooth transition */
         }
 
         .controls button {
@@ -172,7 +174,6 @@
         // Hide all control buttons after 2 seconds of inactivity
         let inactivityTimeout;
         const controls = document.querySelector('.controls');
-        const allButtons = document.querySelectorAll('.controls button');
 
         function hideControls() {
             controls.style.opacity = '0'; // Hide the controls
