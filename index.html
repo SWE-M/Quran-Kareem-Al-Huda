@@ -154,7 +154,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
-        let scale = 1.5;
+        let scale = 1;
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
         const controls = document.getElementById('controls');
@@ -167,10 +167,16 @@
             currentPage = parseInt(savedPage);
         }
 
-        // Function to calculate the scale based on window width
+        // Function to calculate the scale based on window width (adjust this factor as needed)
         function calculateScale() {
             const windowWidth = window.innerWidth;
-            return windowWidth / 800; // Use 800 as the base PDF page width, this can be adjusted
+            if (windowWidth <= 480) {
+                return 1.2; // Default larger scale for small devices
+            } else if (windowWidth <= 768) {
+                return 1.5; // Medium size scale for tablets
+            } else {
+                return 2; // Larger scale for desktops and large devices
+            }
         }
 
         // Adjust scale when the window is resized
