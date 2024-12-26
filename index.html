@@ -75,6 +75,8 @@
             padding: 10px;
             border-radius: 5px;
             display: none;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         #index-panel button {
@@ -84,6 +86,8 @@
             padding: 5px 10px;
             margin: 3px;
             cursor: pointer;
+            display: block;
+            text-align: center;
         }
 
         /* Adjustments for smaller screens */
@@ -124,17 +128,15 @@
     <div id="index-panel"></div>
 
     <script>
-        // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
 
-        // Canvas rendering for PDF
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
         // Load the PDF document
+        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
@@ -181,6 +183,16 @@
                 });
             });
         }
+
+        // Hide splash screen after 2 seconds
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        };
     </script>
 </body>
 </html>
