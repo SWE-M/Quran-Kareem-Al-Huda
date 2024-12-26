@@ -65,6 +65,27 @@
             overflow: auto;
         }
 
+        /* Focusing on index panel */
+        #index-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        #index-panel button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 3px;
+            cursor: pointer;
+        }
+
         /* Adjustments for smaller screens */
         @media (max-width: 768px) {
             #pdf-container {
@@ -90,7 +111,7 @@
         <h1>القرآن الكريم - الهدى</h1>
         <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
         <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
+        <p>هذه الصفحة وقف لوالديَّ حفظهما الله</p>
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
@@ -99,93 +120,10 @@
         <canvas id="pdf-canvas"></canvas>
     </div>
 
+    <!-- Index Panel for page navigation -->
+    <div id="index-panel"></div>
+
     <script>
-        // Touch event for detecting swipe gestures for dark mode and page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.body.addEventListener('touchmove', (e) => {
-            touchEndX = e.touches[0].clientX;
-            touchEndY = e.touches[0].clientY;
-            const touchDifferenceX = touchEndX - touchStartX;
-            const touchDifferenceY = touchEndY - touchStartY;
-
-            // If swipe is downward, apply dark filter (reduce brightness)
-            if (touchDifferenceY > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-            }
-
-            // If swipe is upward, remove dark filter (increase brightness)
-            if (touchDifferenceY < -50) {
-                document.body.style.filter = 'brightness(1)';
-            }
-
-            // If swipe is to the left, go to the next page
-            if (touchDifferenceX < -50) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-
-            // If swipe is to the right, go to the previous page
-            if (touchDifferenceX > 50) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-        });
-
-        // Click event to navigate between pages based on screen area clicked
-        document.body.addEventListener('click', function(e) {
-            const screenWidth = window.innerWidth;
-            const clickX = e.clientX;
-
-            // If clicked on the left half of the screen, go to the next page
-            if (clickX < screenWidth / 2) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-            // If clicked on the right half of the screen, go to the previous page
-            else {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-        });
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-                renderPage(currentPage);
-            }
-        };
-
         // PDF.js setup
         const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
         let pdfDoc = null;
@@ -201,6 +139,9 @@
             pdfDoc = pdf;
             totalPages = pdf.numPages;
 
+            // Display index panel with page numbers
+            displayIndexPanel();
+
             // Retrieve saved page on load
             const savedPage = localStorage.getItem('currentPage');
             if (savedPage) {
@@ -209,6 +150,24 @@
 
             renderPage(currentPage);
         });
+
+        // Display page numbers in the index
+        function displayIndexPanel() {
+            const indexPanel = document.getElementById('index-panel');
+            indexPanel.style.display = 'block';
+            indexPanel.innerHTML = '';  // Clear previous content
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = function() {
+                    currentPage = i;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage);
+                };
+                indexPanel.appendChild(button);
+            }
+        }
 
         // Render a specific page
         function renderPage(pageNum) {
