@@ -167,6 +167,19 @@
             currentPage = parseInt(savedPage);
         }
 
+        // Function to calculate the scale based on window width
+        function calculateScale() {
+            const pageWidth = 800; // Assume that the default PDF page width is 800px
+            const windowWidth = window.innerWidth;
+            return windowWidth / pageWidth;
+        }
+
+        // Adjust scale when the window is resized
+        window.addEventListener('resize', () => {
+            scale = calculateScale();
+            renderPage(currentPage);
+        });
+
         function showControls() {
             controls.classList.remove('hidden');
             if (timeout) clearTimeout(timeout);
@@ -258,6 +271,7 @@
         pdfjsLib.getDocument('E-Quran-mobile.pdf').promise.then((pdf) => {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
+            scale = calculateScale(); // Initial scale based on window width
             renderPage(currentPage); // Render the saved page
         });
 
