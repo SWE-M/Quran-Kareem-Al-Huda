@@ -194,24 +194,35 @@
             }, 2000);
         };
 
-        // Timer for hiding the index panel
-        let hideTimeout;
+        // Handling swipe gesture for page navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
 
-        // Show the index panel when there is any touch or click
-        function showIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
+        document.body.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        });
 
-            // Reset the timeout to hide the panel after 2 seconds of inactivity
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(function() {
-                indexPanel.style.display = 'none';
-            }, 2000);
-        }
+        document.body.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].clientX;
 
-        // Add event listeners for touch and click
-        document.body.addEventListener('touchstart', showIndexPanel);
-        document.body.addEventListener('click', showIndexPanel);
+            if (touchEndX < touchStartX - 50) {
+                // Swipe left: go to next page
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage);
+                }
+            }
+
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right: go to previous page
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage);
+                }
+            }
+        });
     </script>
 </body>
 </html>
