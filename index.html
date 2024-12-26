@@ -159,6 +159,13 @@
         const ctx = canvas.getContext('2d');
         const controls = document.getElementById('controls');
         let timeout;
+        let doubleTap = false;
+
+        // Try to get the saved page number from localStorage
+        const savedPage = localStorage.getItem('currentPage');
+        if (savedPage) {
+            currentPage = parseInt(savedPage);
+        }
 
         function showControls() {
             controls.classList.remove('hidden');
@@ -168,8 +175,19 @@
             }, 3000);
         }
 
+        function toggleControls() {
+            doubleTap = !doubleTap;
+            if (doubleTap) {
+                controls.classList.add('hidden');
+            } else {
+                controls.classList.remove('hidden');
+            }
+        }
+
         document.body.addEventListener('mousemove', showControls);
         document.body.addEventListener('touchstart', showControls);
+
+        document.body.addEventListener('dblclick', toggleControls); // Add double tap functionality
 
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then((page) => {
@@ -204,6 +222,7 @@
         document.getElementById('toc').addEventListener('click', (e) => {
             if (e.target.tagName === 'LI') {
                 currentPage = parseInt(e.target.dataset.page);
+                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
                 renderPage(currentPage);
             }
         });
@@ -226,10 +245,12 @@
         function handleSwipe() {
             if (touchEndX < touchStartX - 50 && currentPage < totalPages) {
                 currentPage++;
+                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
                 renderPage(currentPage);
             }
             if (touchEndX > touchStartX + 50 && currentPage > 1) {
                 currentPage--;
+                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
                 renderPage(currentPage);
             }
         }
@@ -237,7 +258,7 @@
         pdfjsLib.getDocument('E-Quran-mobile.pdf').promise.then((pdf) => {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
-            renderPage(currentPage);
+            renderPage(currentPage); // Render the saved page
         });
 
         window.onload = function () {
