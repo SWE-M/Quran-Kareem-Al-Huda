@@ -16,168 +16,173 @@
             transition: filter 0.3s ease;
         }
 
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        #splash-screen h1 {
+            margin: 20px 0 0;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        #splash-screen p {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
         #pdf-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: auto;
         }
 
-        #pdf-canvas {
-            display: block;
-            margin: 0 auto;
-            background: #fff;
-        }
-
         #controls {
             position: fixed;
             bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            width: 100%;
             display: flex;
-            gap: 10px;
+            justify-content: center;
             z-index: 1000;
+            transition: opacity 0.3s ease;
         }
 
-        .control-button {
+        #controls button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
             background-color: #444;
             color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
             cursor: pointer;
         }
 
-        .control-button:hover {
+        #controls button:hover {
             background-color: #666;
         }
 
-        #index {
+        #toc {
             position: fixed;
-            top: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.8);
+            top: 10px;
+            left: 10px;
+            background-color: #333;
             color: #fff;
-            width: 200px;
-            height: 100%;
-            overflow-y: auto;
-            display: none;
-            z-index: 1000;
             padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
         }
 
-        #index ul {
+        #toc ul {
             list-style: none;
+            margin: 0;
             padding: 0;
         }
 
-        #index ul li {
-            margin: 10px 0;
-            cursor: pointer;
-            text-align: center;
-            background: #333;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        #index ul li:hover {
-            background: #555;
-        }
-
-        #toggle-index {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background-color: #444;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
+        #toc ul li {
+            margin: 5px 0;
             cursor: pointer;
         }
 
-        #toggle-index:hover {
-            background-color: #666;
+        #toc ul li:hover {
+            text-decoration: underline;
         }
 
-        /* Auto-hide controls */
-        body.inactive #controls, body.inactive #toggle-index {
+        .hidden {
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        body.active #controls, body.active #toggle-index {
-            opacity: 1;
-            pointer-events: auto;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
+
+    <div id="splash-screen">
+        <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
+        <h1>القرآن الكريم - الهدى</h1>
+        <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
+        <p>البقرة (185)</p>
+        <p>هذه الصفحة وقف لوالديّ</p>
+        <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
+    </div>
+
     <div id="pdf-container">
         <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <div id="index">
-        <ul id="page-list"></ul>
+    <div id="controls">
+        <button id="zoom-in">+</button>
+        <button id="zoom-out">-</button>
+        <button id="toggle-toc">الفهرس</button>
     </div>
 
-    <button id="toggle-index">فهرس</button>
-
-    <div id="controls">
-        <button id="zoom-in" class="control-button">تكبير</button>
-        <button id="zoom-out" class="control-button">تصغير</button>
+    <div id="toc">
+        <ul>
+            <li data-page="1">الصفحة 1</li>
+            <li data-page="2">الصفحة 2</li>
+            <li data-page="3">الصفحة 3</li>
+        </ul>
     </div>
 
     <script>
-        const pdfUrl = 'E-Quran-mobile.pdf';
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
         let scale = 1.5;
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
+        let timeout;
 
-        const renderPage = (pageNum) => {
-            pdfDoc.getPage(pageNum).then(page => {
+        function showControls() {
+            controls.classList.remove('hidden');
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                controls.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.body.addEventListener('mousemove', showControls);
+        document.body.addEventListener('touchstart', showControls);
+
+        function renderPage(pageNum) {
+            pdfDoc.getPage(pageNum).then((page) => {
                 const viewport = page.getViewport({ scale });
-                canvas.width = viewport.width;
                 canvas.height = viewport.height;
-                page.render({
+                canvas.width = viewport.width;
+                const renderContext = {
                     canvasContext: ctx,
-                    viewport
-                });
+                    viewport: viewport,
+                };
+                page.render(renderContext);
             });
-        };
-
-        const loadPdf = async () => {
-            pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-            totalPages = pdfDoc.numPages;
-            renderPage(currentPage);
-            populateIndex();
-        };
-
-        const populateIndex = () => {
-            const pageList = document.getElementById('page-list');
-            for (let i = 1; i <= totalPages; i++) {
-                const listItem = document.createElement('li');
-                listItem.textContent = `صفحة ${i}`;
-                listItem.addEventListener('click', () => {
-                    currentPage = i;
-                    renderPage(currentPage);
-                });
-                pageList.appendChild(listItem);
-            }
-        };
+        }
 
         document.getElementById('zoom-in').addEventListener('click', () => {
             scale += 0.1;
@@ -191,26 +196,58 @@
             }
         });
 
-        document.getElementById('toggle-index').addEventListener('click', () => {
-            const index = document.getElementById('index');
-            index.style.display = index.style.display === 'none' ? 'block' : 'none';
+        document.getElementById('toggle-toc').addEventListener('click', () => {
+            const toc = document.getElementById('toc');
+            toc.style.display = toc.style.display === 'block' ? 'none' : 'block';
         });
 
-        let inactivityTimeout;
-        const resetInactivity = () => {
-            document.body.classList.add('active');
-            document.body.classList.remove('inactive');
-            clearTimeout(inactivityTimeout);
-            inactivityTimeout = setTimeout(() => {
-                document.body.classList.remove('active');
-                document.body.classList.add('inactive');
-            }, 3000);
+        document.getElementById('toc').addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                currentPage = parseInt(e.target.dataset.page);
+                renderPage(currentPage);
+            }
+        });
+
+        document.body.addEventListener('touchstart', handleSwipeStart);
+        document.body.addEventListener('touchend', handleSwipeEnd);
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleSwipeStart(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }
+
+        function handleSwipeEnd(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50 && currentPage < totalPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+            if (touchEndX > touchStartX + 50 && currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        }
+
+        pdfjsLib.getDocument('E-Quran-mobile.pdf').promise.then((pdf) => {
+            pdfDoc = pdf;
+            totalPages = pdf.numPages;
+            renderPage(currentPage);
+        });
+
+        window.onload = function () {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
         };
-
-        document.addEventListener('mousemove', resetInactivity);
-        document.addEventListener('touchstart', resetInactivity);
-
-        loadPdf();
     </script>
 </body>
 </html>
