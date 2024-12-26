@@ -154,7 +154,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
-        let scale = 1;
+        let scale = 2.5; // Increase initial scale for higher quality
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
         const controls = document.getElementById('controls');
@@ -171,11 +171,11 @@
         function calculateScale() {
             const windowWidth = window.innerWidth;
             if (windowWidth <= 480) {
-                return 1.2; // Default larger scale for small devices
+                return 2.5; // Higher scale for better quality on mobile
             } else if (windowWidth <= 768) {
-                return 1.5; // Medium size scale for tablets
+                return 3; // Medium scale for tablets
             } else {
-                return 2; // Larger scale for desktops and large devices
+                return 3.5; // Larger scale for desktops
             }
         }
 
@@ -210,8 +210,8 @@
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then((page) => {
                 const viewport = page.getViewport({ scale });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                canvas.height = viewport.height * window.devicePixelRatio; // Higher resolution
+                canvas.width = viewport.width * window.devicePixelRatio; // Higher resolution
                 const renderContext = {
                     canvasContext: ctx,
                     viewport: viewport,
@@ -221,13 +221,13 @@
         }
 
         document.getElementById('zoom-in').addEventListener('click', () => {
-            scale += 0.1;
+            scale += 0.2;
             renderPage(currentPage);
         });
 
         document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 0.5) {
-                scale -= 0.1;
+            if (scale > 1) {
+                scale -= 0.2;
                 renderPage(currentPage);
             }
         });
