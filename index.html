@@ -10,11 +10,11 @@
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #fff;  /* Default light mode background */
+            color: #000;  /* Default text color for light mode */
             height: 100%;
             overflow: hidden;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
+            transition: all 0.3s ease; /* Smooth transition for dark mode switch */
         }
 
         /* Splash Screen */
@@ -65,44 +65,54 @@
             overflow: auto;
         }
 
-        /* Focusing on index panel */
-        #index-panel {
-            position: absolute;
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #121212;  /* Dark mode background */
+            color: #e0e0e0;  /* Dark mode text color */
+        }
+
+        /* Button for dark mode */
+        #dark-mode-btn {
+            position: fixed;
             top: 10px;
             right: 10px;
-            z-index: 2;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        #index-panel button {
-            background-color: #444;
+            padding: 10px 15px;
+            background-color: #333;
             color: white;
             border: none;
-            padding: 5px 10px;
-            margin: 3px;
+            border-radius: 5px;
             cursor: pointer;
-            display: block;
-            text-align: center;
+            font-size: 1.2rem;
+            z-index: 10;
         }
 
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
+        /* Button hover effect */
+        #dark-mode-btn:hover {
+            background-color: #555;
+        }
 
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
+        /* General buttons and controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .controls button:hover {
+            background-color: #555;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -124,52 +134,80 @@
         <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <!-- Index Panel for page navigation -->
-    <div id="index-panel"></div>
+    <!-- Dark Mode Button -->
+    <button id="dark-mode-btn">تفعيل الوضع الليلي</button>
+
+    <!-- Control Buttons -->
+    <div class="controls">
+        <button id="page-prev">الصفحة السابقة</button>
+        <button id="page-next">الصفحة التالية</button>
+    </div>
 
     <script>
+        // Dark Mode Toggle
+        const darkModeButton = document.getElementById('dark-mode-btn');
+        const body = document.body;
+
+        // Check if dark mode is enabled in localStorage
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeButton.textContent = 'إيقاف الوضع الليلي';
+        }
+
+        // Toggle dark mode on button click
+        darkModeButton.addEventListener('click', () => {
+            const isDark = body.classList.contains('dark-mode');
+            if (isDark) {
+                body.classList.remove('dark-mode');
+                darkModeButton.textContent = 'تفعيل الوضع الليلي';
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark-mode');
+                darkModeButton.textContent = 'إيقاف الوضع الليلي';
+                localStorage.setItem('darkMode', 'true');
+            }
+        });
+
+        // Hide all control buttons after 2 seconds of inactivity
+        let inactivityTimeout;
+        const controls = document.querySelector('.controls');
+        const allButtons = document.querySelectorAll('.controls button');
+
+        function hideControls() {
+            controls.style.opacity = '0'; // Hide the controls
+        }
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);  // Clear the existing timeout
+            controls.style.opacity = '1';      // Show the controls again
+            inactivityTimeout = setTimeout(hideControls, 2000);  // Hide after 2 seconds
+        }
+
+        // Add event listeners to detect interaction with the screen
+        document.body.addEventListener('click', resetInactivityTimer);
+        document.body.addEventListener('touchstart', resetInactivityTimer);
+        document.body.addEventListener('mousemove', resetInactivityTimer);
+
+        // Initialize the inactivity timer when the page is loaded
+        resetInactivityTimer();
+
+        // PDF rendering logic
+        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
 
+        // Canvas rendering for PDF
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
         // Load the PDF document
-        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
-
-            // Display index panel with page numbers
-            displayIndexPanel();
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
-
             renderPage(currentPage);
         });
-
-        // Display page numbers in the index
-        function displayIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
-            indexPanel.innerHTML = '';  // Clear previous content
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = function() {
-                    currentPage = i;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                };
-                indexPanel.appendChild(button);
-            }
-        }
 
         // Render a specific page
         function renderPage(pageNum) {
@@ -183,16 +221,6 @@
                 });
             });
         }
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
     </script>
 </body>
 </html>
