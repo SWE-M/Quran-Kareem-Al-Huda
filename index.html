@@ -14,7 +14,6 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
         }
 
         /* Splash Screen */
@@ -58,26 +57,86 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: auto;
         }
 
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
+        #controls {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
 
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
+        #controls button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        #controls button:hover {
+            background-color: #666;
+        }
+
+        /* Table of Contents */
+        #toc {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+            z-index: 1000;
+        }
+
+        #toc ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #toc ul li {
+            margin-bottom: 10px;
+        }
+
+        #toc ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        #toc ul li a:hover {
+            text-decoration: underline;
+        }
+
+        #toggle-toc {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #toggle-toc:hover {
+            background-color: #666;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -99,128 +158,87 @@
         <canvas id="pdf-canvas"></canvas>
     </div>
 
+    <!-- Controls -->
+    <div id="controls">
+        <button id="zoom-in">تكبير</button>
+        <button id="zoom-out">تصغير</button>
+    </div>
+
+    <!-- Table of Contents -->
+    <button id="toggle-toc">📖 الفهرس</button>
+    <div id="toc">
+        <ul>
+            <li><a href="#" onclick="goToPage(1)">الفاتحة</a></li>
+            <li><a href="#" onclick="goToPage(2)">البقرة</a></li>
+            <li><a href="#" onclick="goToPage(3)">آل عمران</a></li>
+            <!-- Add more as needed -->
+        </ul>
+    </div>
+
     <script>
-        // Touch event for detecting swipe gestures for dark mode and page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
+        let scale = 1.5; // Default scale
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
+        const toc = document.getElementById('toc');
+        const toggleToc = document.getElementById('toggle-toc');
 
-        document.body.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
+        let timeout;
+
+        // Show/Hide Controls on interaction
+        document.body.addEventListener('mousemove', () => {
+            controls.style.opacity = '1';
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                controls.style.opacity = '0';
+            }, 3000);
         });
 
-        document.body.addEventListener('touchmove', (e) => {
-            touchEndX = e.touches[0].clientX;
-            touchEndY = e.touches[0].clientY;
-            const touchDifferenceX = touchEndX - touchStartX;
-            const touchDifferenceY = touchEndY - touchStartY;
-
-            // If swipe is downward, apply dark filter (reduce brightness)
-            if (touchDifferenceY > 50) {
-                document.body.style.filter = 'brightness(0.5)';
-            }
-
-            // If swipe is upward, remove dark filter (increase brightness)
-            if (touchDifferenceY < -50) {
-                document.body.style.filter = 'brightness(1)';
-            }
-
-            // If swipe is to the left, go to the next page
-            if (touchDifferenceX < -50) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-
-            // If swipe is to the right, go to the previous page
-            if (touchDifferenceX > 50) {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
+        // Toggle TOC visibility
+        toggleToc.addEventListener('click', () => {
+            toc.style.display = toc.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Click event to navigate between pages based on screen area clicked
-        document.body.addEventListener('click', function(e) {
-            const screenWidth = window.innerWidth;
-            const clickX = e.clientX;
-
-            // If clicked on the left half of the screen, go to the next page
-            if (clickX < screenWidth / 2) {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
-            // If clicked on the right half of the screen, go to the previous page
-            else {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage); // Save the page
-                }
-            }
+        // Zoom In/Out functionality
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            scale += 0.2;
+            renderPage(currentPage);
         });
 
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-                renderPage(currentPage);
-            }
-        };
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            if (scale > 0.5) scale -= 0.2;
+            renderPage(currentPage);
+        });
 
         // PDF.js setup
-        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
+        const url = 'E-Quran-mobile.pdf';
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
 
-        // Canvas rendering for PDF
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Load the PDF document
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
-
             renderPage(currentPage);
         });
 
-        // Render a specific page
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
+                const viewport = page.getViewport({ scale });
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
                 page.render({
                     canvasContext: ctx,
-                    viewport: viewport
+                    viewport
                 });
             });
+        }
+
+        function goToPage(pageNum) {
+            if (pageNum > 0 && pageNum <= totalPages) {
+                currentPage = pageNum;
+                renderPage(currentPage);
+            }
         }
     </script>
 </body>
