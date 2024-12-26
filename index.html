@@ -131,7 +131,6 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
-        let hideTimer;
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
@@ -160,25 +159,137 @@
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
-            for (let i = 1; i <= totalPages; i++) {
+            const surahs = [
+                { name: 'الفاتحة', range: '1' },
+                { name: 'البقرة', range: '2-49' },
+                { name: 'آل عمران', range: '50-62' },
+                { name: 'النساء', range: '63-85' },
+                { name: 'المائدة', range: '86-106' },
+                { name: 'الأنعام', range: '107-126' },
+                { name: 'الأعراف', range: '127-146' },
+                { name: 'الأنفال', range: '147-156' },
+                { name: 'التوبة', range: '157-179' },
+                { name: 'يونس', range: '180-195' },
+                { name: 'هود', range: '196-212' },
+                { name: 'يوسف', range: '213-230' },
+                { name: 'إبراهيم', range: '231-240' },
+                { name: 'الحجر', range: '241-250' },
+                { name: 'النحل', range: '251-271' },
+                { name: 'الإسراء', range: '272-290' },
+                { name: 'الكهف', range: '291-309' },
+                { name: 'مريم', range: '310-325' },
+                { name: 'طه', range: '326-340' },
+                { name: 'الأنبياء', range: '341-359' },
+                { name: 'الحج', range: '360-373' },
+                { name: 'المؤمنون', range: '374-384' },
+                { name: 'الفرقان', range: '385-399' },
+                { name: 'النمل', range: '400-414' },
+                { name: 'القصص', range: '415-428' },
+                { name: 'العنكبوت', range: '429-441' },
+                { name: 'الروم', range: '442-452' },
+                { name: 'لقمان', range: '453-457' },
+                { name: 'السجدة', range: '458-461' },
+                { name: 'الأحزاب', range: '462-485' },
+                { name: 'يس', range: '486-493' },
+                { name: 'الصافات', range: '494-505' },
+                { name: 'ص', range: '506-515' },
+                { name: 'الزمر', range: '516-529' },
+                { name: 'فصلت', range: '530-539' },
+                { name: 'الشورى', range: '540-545' },
+                { name: 'الزخرف', range: '546-555' },
+                { name: 'الدخان', range: '556-560' },
+                { name: 'الجاثية', range: '561-565' },
+                { name: 'الأحقاف', range: '566-573' },
+                { name: 'محمد', range: '574-577' },
+                { name: 'الفتح', range: '578-582' },
+                { name: 'الحجرات', range: '583-585' },
+                { name: 'ق', range: '586-589' },
+                { name: 'الذاريات', range: '590-595' },
+                { name: 'الطور', range: '596-601' },
+                { name: 'النجم', range: '602-605' },
+                { name: 'القمر', range: '606-610' },
+                { name: 'الرحمن', range: '611-616' },
+                { name: 'الواقعة', range: '617-622' },
+                { name: 'الحديد', range: '623-627' },
+                { name: 'المجادلة', range: '628-631' },
+                { name: 'الحشر', range: '632-636' },
+                { name: 'الممتحنة', range: '637-639' },
+                { name: 'الصف', range: '640-642' },
+                { name: 'الجمعة', range: '643-644' },
+                { name: 'المنافقون', range: '645-647' },
+                { name: 'التغابن', range: '648-650' },
+                { name: 'الطلاق', range: '651-654' },
+                { name: 'التحريم', range: '655-656' },
+                { name: 'الملك', range: '657-661' },
+                { name: 'القلم', range: '662-668' },
+                { name: 'الحاقة', range: '669-674' },
+                { name: 'المعارج', range: '675-679' },
+                { name: 'نوح', range: '680-683' },
+                { name: 'الجن', range: '684-687' },
+                { name: 'المزمل', range: '688-691' },
+                { name: 'المدثر', range: '692-694' },
+                { name: 'القيامة', range: '695-698' },
+                { name: 'الإنسان', range: '699-703' },
+                { name: 'المرسلات', range: '704-707' },
+                { name: 'النبأ', range: '708-711' },
+                { name: 'النازعات', range: '712-715' },
+                { name: 'عبس', range: '716-718' },
+                { name: 'التكوير', range: '719-721' },
+                { name: 'الإنفطار', range: '722-723' },
+                { name: 'المطففين', range: '724-726' },
+                { name: 'الإنشقاق', range: '727-729' },
+                { name: 'البروج', range: '730-732' },
+                { name: 'الطارق', range: '733-735' },
+                { name: 'الأضحى', range: '736-738' },
+                { name: 'الفجر', range: '739-741' },
+                { name: 'البلد', range: '742-744' },
+                { name: 'الشمس', range: '745-746' },
+                { name: 'الليل', range: '747-749' },
+                { name: 'الضحى', range: '750-751' },
+                { name: 'الشرح', range: '752-753' },
+                { name: 'التين', range: '754-755' },
+                { name: 'العلق', range: '756-758' },
+                { name: 'القدر', range: '759-760' },
+                { name: 'البينة', range: '761-762' },
+                { name: 'الزلزلة', range: '763-764' },
+                { name: 'العاديات', range: '765-766' },
+                { name: 'القارعة', range: '767-768' },
+                { name: 'التكاثر', range: '769-770' },
+                { name: 'العصر', range: '771-772' },
+                { name: 'الهمزة', range: '773-774' },
+                { name: 'الفيل', range: '775-776' },
+                { name: 'قريش', range: '777-778' },
+                { name: 'الماعون', range: '779-780' },
+                { name: 'الكوثر', range: '781-782' },
+                { name: 'الكافرون', range: '783-784' },
+                { name: 'النصر', range: '785-786' },
+                { name: 'المسد', range: '787-788' },
+                { name: 'الإخلاص', range: '789-790' },
+                { name: 'الفلق', range: '791-792' },
+                { name: 'الناس', range: '793-794' }
+            ];
+
+            // Generate buttons for each surah
+            surahs.forEach(surah => {
                 const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = function() {
-                    currentPage = i;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                };
+                button.textContent = `${surah.name} (${surah.range})`;
+                button.addEventListener('click', () => {
+                    // Navigate to the page containing the surah
+                    navigateToPage(parseInt(surah.range.split('-')[0])); // Just go to the first page of the range
+                });
                 indexPanel.appendChild(button);
-            }
+            });
         }
 
-        // Render a specific page
+        // Render page content
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
+
                 page.render({
                     canvasContext: ctx,
                     viewport: viewport
@@ -186,61 +297,12 @@
             });
         }
 
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // Handling swipe gesture for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
-
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page (عكس الاتجاه)
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page (عكس الاتجاه)
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-        });
-
-        // Hide the index panel after 2 seconds
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                document.getElementById('index-panel').style.display = 'none';
-            }, 2000);
+        // Navigate to a page and save it in local storage
+        function navigateToPage(pageNum) {
+            currentPage = pageNum;
+            renderPage(currentPage);
+            localStorage.setItem('currentPage', currentPage);
         }
-
-        // Show the index panel when the user interacts with the screen
-        document.body.addEventListener('touchstart', () => {
-            document.getElementById('index-panel').style.display = 'block';
-            resetHideTimer();
-        });
     </script>
 </body>
 </html>
