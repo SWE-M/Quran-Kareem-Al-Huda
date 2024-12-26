@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
     <style>
+        /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -13,9 +14,10 @@
             color: #fff;
             height: 100%;
             overflow: hidden;
-            transition: filter 0.3s ease;
+            transition: filter 0.3s ease; /* Transition for smooth effect */
         }
 
+        /* Splash Screen */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -49,6 +51,7 @@
             text-align: center;
         }
 
+        /* PDF Container */
         #pdf-container {
             position: absolute;
             top: 0;
@@ -62,235 +65,163 @@
             overflow: auto;
         }
 
-        #controls {
-            position: fixed;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.3s ease;
-        }
+        /* Adjustments for smaller screens */
+        @media (max-width: 768px) {
+            #pdf-container {
+                transform: scale(1);
+                width: 100%;
+                height: 100%;
+            }
 
-        #controls button {
-            margin: 0 10px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            background-color: #444;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        #controls button:hover {
-            background-color: #666;
-        }
-
-        #toc {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-            display: none;
-        }
-
-        #toc ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        #toc ul li {
-            margin: 5px 0;
-            cursor: pointer;
-        }
-
-        #toc ul li:hover {
-            text-decoration: underline;
-        }
-
-        .hidden {
-            opacity: 0;
-            pointer-events: none;
+            /* Adjust canvas size to fit the screen */
+            #pdf-canvas {
+                width: 100%;
+                height: 100%;
+            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
 
+    <!-- Splash Screen -->
     <div id="splash-screen">
         <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
         <h1>القرآن الكريم - الهدى</h1>
         <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
         <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لوالديّ</p>
+        <p>هذه الصفحة وقف لي ولولدي, الله يطول في أعمارهم ويلبسهم لباس الصحة والعافية ويرزقهم من حيث يحتسبون ومن حيث لا يحتسبون</p>
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
+    <!-- PDF Container -->
     <div id="pdf-container">
         <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <div id="controls">
-        <button id="zoom-in">+</button>
-        <button id="zoom-out">-</button>
-        <button id="toggle-toc">الفهرس</button>
-    </div>
-
-    <div id="toc">
-        <ul>
-            <li data-page="1">الصفحة 1</li>
-            <li data-page="2">الصفحة 2</li>
-            <li data-page="3">الصفحة 3</li>
-        </ul>
-    </div>
-
     <script>
-        let pdfDoc = null;
-        let currentPage = 1;
-        let totalPages = 0;
-        let scale = 1.5; // Standard scale for better visibility
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-        const controls = document.getElementById('controls');
-        let timeout;
-
-        // Try to get the saved page number from localStorage
-        const savedPage = localStorage.getItem('currentPage');
-        if (savedPage) {
-            currentPage = parseInt(savedPage);
-        }
-
-        // Function to calculate scale based on screen width
-        function calculateScale() {
-            const windowWidth = window.innerWidth;
-            if (windowWidth <= 480) {
-                return 1; // scale for small screens (mobiles)
-            } else if (windowWidth <= 768) {
-                return 1.5; // scale for medium screens (tablets)
-            } else {
-                return 1.8; // scale for larger screens
-            }
-        }
-
-        // Adjust scale when the window is resized
-        window.addEventListener('resize', () => {
-            scale = calculateScale();
-            renderPage(currentPage);
-        });
-
-        function showControls() {
-            controls.classList.remove('hidden');
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                controls.classList.add('hidden');
-            }, 3000);
-        }
-
-        function toggleControls() {
-            doubleTap = !doubleTap;
-            if (doubleTap) {
-                controls.classList.add('hidden');
-            } else {
-                controls.classList.remove('hidden');
-            }
-        }
-
-        document.body.addEventListener('mousemove', showControls);
-        document.body.addEventListener('touchstart', showControls);
-
-        document.body.addEventListener('dblclick', toggleControls);
-
-        function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then((page) => {
-                const viewport = page.getViewport({ scale });
-                // Increase the canvas resolution using devicePixelRatio for higher quality
-                const canvasWidth = viewport.width * window.devicePixelRatio;
-                const canvasHeight = viewport.height * window.devicePixelRatio;
-                canvas.width = canvasWidth;
-                canvas.height = canvasHeight;
-
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport,
-                };
-
-                page.render(renderContext);
-            });
-        }
-
-        document.getElementById('zoom-in').addEventListener('click', () => {
-            scale += 0.2;
-            renderPage(currentPage);
-        });
-
-        document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 1) {
-                scale -= 0.2;
-                renderPage(currentPage);
-            }
-        });
-
-        document.getElementById('toggle-toc').addEventListener('click', () => {
-            const toc = document.getElementById('toc');
-            toc.style.display = toc.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.getElementById('toc').addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI') {
-                currentPage = parseInt(e.target.dataset.page);
-                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
-                renderPage(currentPage);
-            }
-        });
-
-        document.body.addEventListener('touchstart', handleSwipeStart);
-        document.body.addEventListener('touchend', handleSwipeEnd);
-
+        // Touch event for detecting swipe gestures for dark mode and page navigation
         let touchStartX = 0;
         let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
 
-        function handleSwipeStart(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }
-
-        function handleSwipeEnd(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }
-
-        function handleSwipe() {
-            if (touchEndX < touchStartX - 50 && currentPage < totalPages) {
-                currentPage++;
-                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
-                renderPage(currentPage);
-            }
-            if (touchEndX > touchStartX + 50 && currentPage > 1) {
-                currentPage--;
-                localStorage.setItem('currentPage', currentPage); // Save page number to localStorage
-                renderPage(currentPage);
-            }
-        }
-
-        pdfjsLib.getDocument('E-Quran-mobile.pdf').promise.then((pdf) => {
-            pdfDoc = pdf;
-            totalPages = pdf.numPages;
-            renderPage(currentPage); // Render the saved page
+        document.body.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
         });
 
-        window.onload = function () {
+        document.body.addEventListener('touchmove', (e) => {
+            touchEndX = e.touches[0].clientX;
+            touchEndY = e.touches[0].clientY;
+            const touchDifferenceX = touchEndX - touchStartX;
+            const touchDifferenceY = touchEndY - touchStartY;
+
+            // If swipe is downward, apply dark filter (reduce brightness)
+            if (touchDifferenceY > 50) {
+                document.body.style.filter = 'brightness(0.5)';
+            }
+
+            // If swipe is upward, remove dark filter (increase brightness)
+            if (touchDifferenceY < -50) {
+                document.body.style.filter = 'brightness(1)';
+            }
+
+            // If swipe is to the left, go to the next page
+            if (touchDifferenceX < -50) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
+                }
+            }
+
+            // If swipe is to the right, go to the previous page
+            if (touchDifferenceX > 50) {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
+                }
+            }
+        });
+
+        // Click event to navigate between pages based on screen area clicked
+        document.body.addEventListener('click', function(e) {
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            // If clicked on the left half of the screen, go to the next page
+            if (clickX < screenWidth / 2) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
+                }
+            }
+            // If clicked on the right half of the screen, go to the previous page
+            else {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage); // Save the page
+                }
+            }
+        });
+
+        // Hide splash screen after 2 seconds
+        window.onload = function() {
             setTimeout(() => {
                 document.getElementById('splash-screen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash-screen').style.display = 'none';
                 }, 500);
             }, 2000);
+
+            // Retrieve saved page on load
+            const savedPage = localStorage.getItem('currentPage');
+            if (savedPage) {
+                currentPage = parseInt(savedPage);
+                renderPage(currentPage);
+            }
         };
+
+        // PDF.js setup
+        const url = 'E-Quran-mobile.pdf';  // Change to the actual path of your PDF
+        let pdfDoc = null;
+        let currentPage = 1;
+        let totalPages = 0;
+
+        // Canvas rendering for PDF
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Load the PDF document
+        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+            pdfDoc = pdf;
+            totalPages = pdf.numPages;
+
+            // Retrieve saved page on load
+            const savedPage = localStorage.getItem('currentPage');
+            if (savedPage) {
+                currentPage = parseInt(savedPage);
+            }
+
+            renderPage(currentPage);
+        });
+
+        // Render a specific page
+        function renderPage(pageNum) {
+            pdfDoc.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                });
+            });
+        }
     </script>
 </body>
 </html>
