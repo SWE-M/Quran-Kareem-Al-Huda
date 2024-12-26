@@ -131,6 +131,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
+        let hideTimer;
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
@@ -166,6 +167,7 @@
                     currentPage = i;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
+                    resetHideTimer();
                 };
                 indexPanel.appendChild(button);
             }
@@ -206,22 +208,38 @@
             touchEndX = e.changedTouches[0].clientX;
 
             if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to previous page
+                // Swipe left: go to previous page (عكس الاتجاه)
                 if (currentPage > 1) {
                     currentPage--;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
+                    resetHideTimer();
                 }
             }
+
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right: go to next page (عكس الاتجاه)
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                    localStorage.setItem('currentPage', currentPage);
+                    resetHideTimer();
+                }
+            }
+        });
+
+        // Hide the index panel after 2 seconds
+        function resetHideTimer() {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                document.getElementById('index-panel').style.display = 'none';
+            }, 2000);
+        }
+
+        // Show the index panel when the user interacts with the screen
+        document.body.addEventListener('touchstart', () => {
+            document.getElementById('index-panel').style.display = 'block';
+            resetHideTimer();
         });
     </script>
 </body>
