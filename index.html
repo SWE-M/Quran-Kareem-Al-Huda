@@ -1,311 +1,162 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>القرآن الكريم - الهدى</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            background-color: #fdf4e3; /* لون مشابه للصورة */
-            color: #3a2a12; /* لون النص مشابه */
-            height: 100%;
-            overflow: hidden;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
-        }
-
-        /* Splash Screen */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fdf4e3; /* نفس الخلفية */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        #splash-screen img {
-            max-width: 80%;
-            max-height: 80%;
-        }
-
-        #splash-screen h1 {
-            margin: 20px 0 0;
-            font-size: 1.5rem;
-            text-align: center;
-            color: #3a2a12;
-        }
-
-        #splash-screen p {
-            margin-top: 10px;
-            font-size: 1.2rem;
-            text-align: center;
-            color: #3a2a12;
-        }
-
-        /* PDF Container */
-        #pdf-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-        }
-
-        /* PDF Mask */
-        .pdf-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(253, 244, 227, 0.6); /* لون شفاف مشابه للخلفية */
-            z-index: 10; /* يظهر فوق محتوى PDF */
-        }
-
-        #pdf-canvas {
-            position: relative;
-            z-index: 5; /* خلف القناع */
-            opacity: 0.9; /* خفض شفافية الـ PDF */
-        }
-
-        /* Index Panel for page navigation */
-        #index-panel {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            z-index: 2;
-            background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            max-height: 50vh;
-            overflow-y: auto;
-            border: 1px solid #3a2a12; /* إطار مشابه */
-        }
-
-        #index-panel button {
-            background-color: #f9e7ce; /* لون أزرار مشابه */
-            color: #3a2a12;
-            border: 1px solid #3a2a12;
-            padding: 5px 10px;
-            margin: 3px;
-            cursor: pointer;
-            display: block;
-            text-align: center;
-            border-radius: 3px;
-        }
-
-        #index-panel button:hover {
-            background-color: #f3d9a3; /* تأثير عند التمرير */
-        }
-
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قراءة القرآن الكريم</title>
+  <style>
+    body {
+      font-family: "Amiri", serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+    }
+    #viewer-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+    #pdf-viewer {
+      width: 100%;
+      height: 100%;
+    }
+    #indexButton {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      display: none;
+    }
+    #indexContainer {
+      position: absolute;
+      bottom: 50px;
+      right: 10px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 250px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    #indexContainer ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #indexContainer li {
+      margin: 5px 0;
+    }
+    #indexContainer a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    #pageNumber {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 16px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-
-    <!-- Splash Screen -->
-    <div id="splash-screen">
-        <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
-        <h1>القرآن الكريم - الهدى</h1>
-        <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
-        <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لوالديَّ حفظهما الله</p>
-        <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
+  <div id="viewer-container">
+    <div id="pdf-viewer"></div>
+    <button id="indexButton">عرض الفهرس</button>
+    <div id="indexContainer">
+      <ul>
+        <li><a href="#" data-page="1">الفاتحة - الجزء الأول - مكيّة</a></li>
+        <li><a href="#" data-page="2">البقرة - الجزء الأول - مدنيّة</a></li>
+        <li><a href="#" data-page="3">آل عمران - الجزء الثالث - مدنيّة</a></li>
+        <li><a href="#" data-page="4">النساء - الجزء الرابع - مدنيّة</a></li>
+        <li><a href="#" data-page="5">المائدة - الجزء السادس - مدنيّة</a></li>
+        <li><a href="#" data-page="6">الأنعام - الجزء السابع - مكيّة</a></li>
+        <li><a href="#" data-page="7">الأعراف - الجزء الثامن - مكيّة</a></li>
+        <li><a href="#" data-page="8">الأنفال - الجزء التاسع - مدنيّة</a></li>
+        <li><a href="#" data-page="9">التوبة - الجزء العاشر - مدنيّة</a></li>
+        <li><a href="#" data-page="10">يونس - الجزء الحادي عشر - مكيّة</a></li>
+        <li><a href="#" data-page="11">هود - الجزء الحادي عشر - مكيّة</a></li>
+        <!-- Add the rest of the index items here -->
+      </ul>
     </div>
+    <div id="pageNumber">الصفحة: 1</div>
+  </div>
 
-    <!-- PDF Container -->
-    <div id="pdf-container">
-        <div class="pdf-mask"></div> <!-- القناع المضاف -->
-        <canvas id="pdf-canvas"></canvas>
-    </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script>
+    const indexButton = document.getElementById('indexButton');
+    const indexContainer = document.getElementById('indexContainer');
+    const pdfViewer = document.getElementById('pdf-viewer');
+    const pageNumberDiv = document.getElementById('pageNumber');
+    let pdfDoc = null;
+    let currentPage = 1;
+    const url = 'path_to_your_pdf_file.pdf'; // Replace with the actual PDF file path
 
-    <!-- Index Panel for page navigation -->
-    <div id="index-panel"></div>
+    // Load the PDF file
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+      pdfDoc = pdf;
+      renderPage(currentPage);
+    });
 
-    <!-- Toggle Index Button -->
-    <button id="index-toggle" style="position: fixed; bottom: 10px; right: 10px; z-index: 3; background-color: #f9e7ce; color: #3a2a12; border: 1px solid #3a2a12; padding: 10px; cursor: pointer; border-radius: 5px;">عرض الفهرس</button>
+    // Render the page
+    function renderPage(pageNum) {
+      pdfDoc.getPage(pageNum).then(function(page) {
+        const viewport = page.getViewport({ scale: 1 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        pdfViewer.innerHTML = ''; // Clear previous content
+        pdfViewer.appendChild(canvas);
+        page.render({ canvasContext: context, viewport: viewport });
 
-    <script>
-        let pdfDoc = null;
-        let currentPage = 1;
-        let totalPages = 0;
-        let hideTimer;
-        let indexVisible = false;
+        // Update the page number
+        pageNumberDiv.textContent = `الصفحة: ${pageNum}`;
+      });
+    }
 
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
+    // Toggle the index visibility
+    indexButton.addEventListener('click', function() {
+      if (indexContainer.style.display === 'none' || indexContainer.style.display === '') {
+        indexContainer.style.display = 'block';
+      } else {
+        indexContainer.style.display = 'none';
+      }
+    });
 
-        // تحديد مصدر Worker للـ PDF.js لتجنب التحذيرات
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+    // Hide index button after 1 second of inactivity
+    let inactivityTimer;
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        indexButton.style.display = 'none';
+      }, 1000);
+    }
 
-        // Load the PDF document
-        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            pdfDoc = pdf;
-            totalPages = pdf.numPages;
+    document.addEventListener('mousemove', function() {
+      indexButton.style.display = 'block';
+      resetInactivityTimer();
+    });
 
-            // Display index panel with page numbers and surah names
-            displayIndexPanel();
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
-
-            renderPage(currentPage);
-        });
-
-        // Display page numbers in the index with surah names
-        function displayIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
-            indexPanel.innerHTML = '';  // Clear previous content
-
-            const surahs = [
-                'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة', 'الأنعام', 'الأعراف', 'الأنفال', 'التوبة', 'يونس',
-                // ... أضف باقي السور هنا
-            ];
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = `${i}  ${surahs[i - 1] || 'سورة غير محددة'}  الجزء ${Math.ceil(i / 20)} مكيّة`;
-                button.onclick = function() {
-                    currentPage = i;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                };
-                indexPanel.appendChild(button);
-            }
-        }
-
-        // Render a specific page
-        function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
-
-                // Set canvas dimensions
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // Render the page content
-                page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
-            });
-        }
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // Toggle index panel visibility
-        const indexToggleButton = document.getElementById('index-toggle');
-        indexToggleButton.onclick = function() {
-            const indexPanel = document.getElementById('index-panel');
-            if (indexVisible) {
-                indexPanel.style.display = 'none';
-            } else {
-                indexPanel.style.display = 'block';
-            }
-            indexVisible = !indexVisible;
-            resetHideTimer();
-        };
-
-        // Handling touch events for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-            showIndexButton();
-        });
-
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
-
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-        });
-
-        // Show the index button after screen interaction
-        function showIndexButton() {
-            const indexToggleButton = document.getElementById('index-toggle');
-            indexToggleButton.style.display = 'block';
-
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                indexToggleButton.style.display = 'none';
-            }, 1000); // Hide after 1 second of inactivity
-        }
-
-        // Hide the index panel after 2 seconds of inactivity
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                document.getElementById('index-panel').style.display = 'none';
-            }, 2000);
-        }
-
-        // Prevent index panel from showing on every interaction
-        document.body.addEventListener('touchstart', () => {
-            clearTimeout(hideTimer);
-        });
-    </script>
+    // Navigate to the page when an index item is clicked
+    indexContainer.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        const page = parseInt(event.target.getAttribute('data-page'));
+        currentPage = page;
+        renderPage(currentPage);
+        indexContainer.style.display = 'none'; // Hide index after click
+      }
+    });
+  </script>
 </body>
 </html>
