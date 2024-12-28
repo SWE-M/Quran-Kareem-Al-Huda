@@ -84,10 +84,10 @@
             opacity: 0.9; /* خفض شفافية الـ PDF */
         }
 
-        /* Focusing on index panel */
+        /* Index Panel for page navigation */
         #index-panel {
-            position: absolute;
-            top: 10px;
+            position: fixed;
+            bottom: 60px; /* المسافة بين الزر والفهرس */
             right: 10px;
             z-index: 2;
             background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
@@ -97,7 +97,8 @@
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid #3a2a12; /* إطار مشابه */
-            direction: rtl; /* تنسيق النص من اليمين لليسار */
+            width: 300px; /* عرض الفهرس */
+            direction: rtl; /* ترتيب النصوص من اليمين لليسار */
         }
 
         #index-panel button {
@@ -114,6 +115,20 @@
 
         #index-panel button:hover {
             background-color: #f3d9a3; /* تأثير عند التمرير */
+        }
+
+        /* Index Button */
+        #index-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 3;
+            background-color: #f9e7ce; /* لون الزر */
+            color: #3a2a12;
+            border: 1px solid #3a2a12;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
         /* Adjustments for smaller screens */
@@ -154,14 +169,18 @@
     <!-- Index Panel for page navigation -->
     <div id="index-panel"></div>
 
+    <!-- Index Button -->
+    <button id="index-button">عرض الفهرس</button>
+
     <script>
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
         let hideTimer;
-
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
+        const indexPanel = document.getElementById('index-panel');
+        const indexButton = document.getElementById('index-button');
 
         // Load the PDF document
         const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
@@ -183,24 +202,21 @@
 
         // Display page numbers in the index
         function displayIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
-            const index = [
-                { page: 1, name: "الفاتحة", part: "الجزء الأول", place: "مكيّة", verses: 7 },
-                { page: 2, name: "البقرة", part: "الجزء الأول", place: "مدنيّة", verses: 286 },
-                // Add more pages with similar structure
+            const data = [
+                { page: 1, name: 'الفاتحة', part: 'الجزء الأول', type: 'مكيّة', verses: 7 },
+                { page: 2, name: 'البقرة', part: 'الجزء الأول', type: 'مدنيّة', verses: 286 },
+                // Add more surahs and their information here
             ];
 
-            index.forEach(function(item) {
+            data.forEach(item => {
                 const button = document.createElement('button');
-                button.textContent = `${item.page} - ${item.name} - ${item.part} - ${item.place} - ${item.verses} آية`;
+                button.textContent = `${item.page}  ${item.name}  ${item.part}  ${item.type}  ${item.verses}`;
                 button.onclick = function() {
                     currentPage = item.page;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
                 };
                 indexPanel.appendChild(button);
             });
@@ -210,96 +226,39 @@
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
                 const viewport = page.getViewport({ scale: 1.5 });
-
-                // Set canvas dimensions based on the viewport
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
-
-                // Render the page content
                 page.render({
                     canvasContext: ctx,
                     viewport: viewport
                 });
-
-                // Display current page number
-                displayCurrentPage(pageNum);
             });
         }
 
-        // Display current page number in the top right corner
-        function displayCurrentPage(pageNum) {
-            const pageNumberDisplay = document.createElement('div');
-            pageNumberDisplay.style.position = 'absolute';
-            pageNumberDisplay.style.top = '10px';
-            pageNumberDisplay.style.right = '10px';
-            pageNumberDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-            pageNumberDisplay.style.color = '#fff';
-            pageNumberDisplay.style.padding = '5px 10px';
-            pageNumberDisplay.style.borderRadius = '3px';
-            pageNumberDisplay.textContent = `الصفحة ${pageNum}`;
-            document.body.appendChild(pageNumberDisplay);
-
-            // Remove the page number display after 3 seconds
-            setTimeout(() => {
-                document.body.removeChild(pageNumberDisplay);
-            }, 3000);
-        }
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
+        // Toggle index panel visibility
+        indexButton.onclick = function() {
+            if (indexPanel.style.display === 'block') {
+                indexPanel.style.display = 'none';
+            } else {
+                indexPanel.style.display = 'block';
+            }
+            resetHideTimer();
         };
 
-        // Handling swipe gesture for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
-
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-        });
-
-        // Hide the index panel after 2 seconds
+        // Hide the index panel after 1 second of inactivity
         function resetHideTimer() {
             clearTimeout(hideTimer);
             hideTimer = setTimeout(() => {
-                document.getElementById('index-panel').style.display = 'none';
-            }, 2000);
+                indexButton.style.display = 'none';
+            }, 1000);
         }
 
-        // Show the index panel when the user interacts with the screen
+        // Show the index button when interacting with the screen
         document.body.addEventListener('touchstart', () => {
-            document.getElementById('index-panel').style.display = 'block';
+            indexButton.style.display = 'block';
             resetHideTimer();
         });
+
     </script>
 </body>
 </html>
