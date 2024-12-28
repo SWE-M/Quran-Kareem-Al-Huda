@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
     <style>
-        /* Reset and general styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -161,6 +160,7 @@
         let currentPage = 1;
         let totalPages = 0;
         let hideTimer;
+        let indexVisible = false;
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
@@ -174,7 +174,7 @@
             pdfDoc = pdf;
             totalPages = pdf.numPages;
 
-            // Display index panel with page numbers
+            // Display index panel with page numbers and surah names
             displayIndexPanel();
 
             // Retrieve saved page on load
@@ -186,15 +186,20 @@
             renderPage(currentPage);
         });
 
-        // Display page numbers in the index
+        // Display page numbers in the index with surah names
         function displayIndexPanel() {
             const indexPanel = document.getElementById('index-panel');
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
+            const surahs = [
+                'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة', 'الأنعام', 'الأعراف', 'الأنفال', 'التوبة', 'يونس',
+                // ... أضف باقي السور هنا
+            ];
+
             for (let i = 1; i <= totalPages; i++) {
                 const button = document.createElement('button');
-                button.textContent = i + "  الفاتحة  الجزء الأول  مكيّة  7"; // تعديل النص لعرض الفهرس بتنسيق مناسب
+                button.textContent = `${i}  ${surahs[i - 1] || 'سورة غير محددة'}  الجزء ${Math.ceil(i / 20)} مكيّة`;
                 button.onclick = function() {
                     currentPage = i;
                     renderPage(currentPage);
@@ -236,11 +241,13 @@
         const indexToggleButton = document.getElementById('index-toggle');
         indexToggleButton.onclick = function() {
             const indexPanel = document.getElementById('index-panel');
-            if (indexPanel.style.display === 'none' || indexPanel.style.display === '') {
-                indexPanel.style.display = 'block';
-            } else {
+            if (indexVisible) {
                 indexPanel.style.display = 'none';
+            } else {
+                indexPanel.style.display = 'block';
             }
+            indexVisible = !indexVisible;
+            resetHideTimer();
         };
 
         // Handling touch events for page navigation
@@ -249,6 +256,7 @@
 
         document.body.addEventListener('touchstart', function(e) {
             touchStartX = e.touches[0].clientX;
+            showIndexButton();
         });
 
         document.body.addEventListener('touchend', function(e) {
@@ -275,6 +283,17 @@
             }
         });
 
+        // Show the index button after screen interaction
+        function showIndexButton() {
+            const indexToggleButton = document.getElementById('index-toggle');
+            indexToggleButton.style.display = 'block';
+
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                indexToggleButton.style.display = 'none';
+            }, 1000); // Hide after 1 second of inactivity
+        }
+
         // Hide the index panel after 2 seconds of inactivity
         function resetHideTimer() {
             clearTimeout(hideTimer);
@@ -283,10 +302,9 @@
             }, 2000);
         }
 
-        // Show the index panel when the user interacts with the screen
+        // Prevent index panel from showing on every interaction
         document.body.addEventListener('touchstart', () => {
-            document.getElementById('index-panel').style.display = 'block';
-            resetHideTimer();
+            clearTimeout(hideTimer);
         });
     </script>
 </body>
