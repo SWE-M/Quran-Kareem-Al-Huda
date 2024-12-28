@@ -67,6 +67,17 @@
             overflow: auto;
         }
 
+        /* PDF Mask */
+        .pdf-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fdf4e3;
+            z-index: -1; /* يظهر خلف محتوى PDF */
+        }
+
         /* Focusing on index panel */
         #index-panel {
             position: absolute;
@@ -129,6 +140,7 @@
 
     <!-- PDF Container -->
     <div id="pdf-container">
+        <div class="pdf-mask"></div> <!-- القناع المضاف -->
         <canvas id="pdf-canvas"></canvas>
     </div>
 
@@ -189,10 +201,6 @@
                 // Set canvas dimensions
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
-
-                // Set background color before rendering PDF content
-                ctx.fillStyle = '#fdf4e3'; // اللون المطلوب
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 // Render the page content
                 page.render({
