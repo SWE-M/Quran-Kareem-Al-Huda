@@ -15,6 +15,7 @@
             height: 100%;
             overflow: hidden;
             transition: filter 0.3s ease; /* Transition for smooth effect */
+            direction: rtl; /* Arabic text direction */
         }
 
         /* Splash Screen */
@@ -88,7 +89,7 @@
         #index-panel {
             position: absolute;
             top: 10px;
-            left: 10px;
+            right: 10px; /* نقل الفهرس إلى الجهة اليمنى */
             z-index: 2;
             background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
             padding: 10px;
@@ -97,7 +98,7 @@
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid #3a2a12; /* إطار مشابه */
-            width: 250px;
+            width: 300px;
         }
 
         #index-panel button {
@@ -108,7 +109,7 @@
             margin: 3px;
             cursor: pointer;
             display: block;
-            text-align: center;
+            text-align: right; /* تنسيق النص ليكون من اليمين لليسار */
             border-radius: 3px;
         }
 
@@ -163,13 +164,21 @@
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
+        // بيانات الفهرس (رقم الصفحة، اسم السورة، الجزء، نوع السورة، عدد الآيات)
+        const indexData = [
+            { page: 1, surah: "الفاتحة", part: "الجزء الأول", type: "مكيّة", verses: 7 },
+            { page: 2, surah: "البقرة", part: "الجزء الأول", type: "مدنيّة", verses: 286 },
+            { page: 3, surah: "آل عمران", part: "الجزء الثاني", type: "مدنيّة", verses: 200 },
+            // يمكنك إضافة باقي السور والصفحات هنا
+        ];
+
         // Load the PDF document
         const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
 
-            // Display index panel with page numbers
+            // Display index panel with page numbers and details
             displayIndexPanel();
 
             // Retrieve saved page on load
@@ -181,23 +190,18 @@
             renderPage(currentPage);
         });
 
-        // Display page numbers in the index
+        // Display page numbers and additional details in the index
         function displayIndexPanel() {
             const indexPanel = document.getElementById('index-panel');
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
-            const surahData = [
-                {number: 1, name: "الفاتحة", part: "الجزء الأول", classification: "مكيّة", verses: 7, page: 1},
-                {number: 2, name: "البقرة", part: "الجزء الأول", classification: "مدنيّة", verses: 286, page: 2},
-                // Add more surahs as needed...
-            ];
-
-            surahData.forEach(surah => {
+            // Loop through indexData and create a button for each entry
+            indexData.forEach(function(entry) {
                 const button = document.createElement('button');
-                button.textContent = `${surah.number} - ${surah.name} (${surah.part}, ${surah.classification}, آيات: ${surah.verses}, صفحة: ${surah.page})`;
+                button.textContent = `${entry.page} - ${entry.surah} - ${entry.part} - ${entry.type} - ${entry.verses} آية`;
                 button.onclick = function() {
-                    currentPage = surah.page;
+                    currentPage = entry.page;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
                     resetHideTimer();
