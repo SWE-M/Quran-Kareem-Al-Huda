@@ -74,8 +74,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #fdf4e3;
-            z-index: -1; /* يظهر خلف محتوى PDF */
+            background-color: rgba(253, 244, 227, 0.9); /* لون شفاف مشابه للخلفية */
+            z-index: 10; /* يظهر فوق محتوى PDF */
+        }
+
+        #pdf-canvas {
+            position: relative;
+            z-index: 5; /* خلف القناع */
+            opacity: 0.9; /* خفض شفافية الـ PDF */
         }
 
         /* Focusing on index panel */
