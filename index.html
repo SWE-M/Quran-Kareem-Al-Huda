@@ -15,7 +15,6 @@
             height: 100%;
             overflow: hidden;
             transition: filter 0.3s ease; /* Transition for smooth effect */
-            direction: rtl; /* Arabic text direction */
         }
 
         /* Splash Screen */
@@ -89,7 +88,7 @@
         #index-panel {
             position: absolute;
             top: 10px;
-            right: 10px; /* نقل الفهرس إلى الجهة اليمنى */
+            right: 10px;
             z-index: 2;
             background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
             padding: 10px;
@@ -98,7 +97,6 @@
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid #3a2a12; /* إطار مشابه */
-            width: 300px;
         }
 
         #index-panel button {
@@ -109,7 +107,7 @@
             margin: 3px;
             cursor: pointer;
             display: block;
-            text-align: right; /* تنسيق النص ليكون من اليمين لليسار */
+            text-align: center;
             border-radius: 3px;
         }
 
@@ -164,21 +162,13 @@
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
-        // بيانات الفهرس (رقم الصفحة، اسم السورة، الجزء، نوع السورة، عدد الآيات)
-        const indexData = [
-            { page: 1, surah: "الفاتحة", part: "الجزء الأول", type: "مكيّة", verses: 7 },
-            { page: 2, surah: "البقرة", part: "الجزء الأول", type: "مدنيّة", verses: 286 },
-            { page: 3, surah: "آل عمران", part: "الجزء الثاني", type: "مدنيّة", verses: 200 },
-            // يمكنك إضافة باقي السور والصفحات هنا
-        ];
-
         // Load the PDF document
         const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
 
-            // Display index panel with page numbers and details
+            // Display index panel with page numbers
             displayIndexPanel();
 
             // Retrieve saved page on load
@@ -190,18 +180,23 @@
             renderPage(currentPage);
         });
 
-        // Display page numbers and additional details in the index
+        // Display page numbers in the index
         function displayIndexPanel() {
             const indexPanel = document.getElementById('index-panel');
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
-            // Loop through indexData and create a button for each entry
-            indexData.forEach(function(entry) {
+            const index = [
+                { page: 1, name: "الفاتحة", part: "الجزء الأول", place: "مكيّة", verses: 7 },
+                { page: 2, name: "البقرة", part: "الجزء الأول", place: "مدنيّة", verses: 286 },
+                // Add more pages with similar structure
+            ];
+
+            index.forEach(function(item) {
                 const button = document.createElement('button');
-                button.textContent = `${entry.page} - ${entry.surah} - ${entry.part} - ${entry.type} - ${entry.verses} آية`;
+                button.textContent = `${item.page} - ${item.name} - ${item.part} - ${item.place} - ${item.verses} آية`;
                 button.onclick = function() {
-                    currentPage = entry.page;
+                    currentPage = item.page;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
                     resetHideTimer();
@@ -215,7 +210,7 @@
             pdfDoc.getPage(pageNum).then(function(page) {
                 const viewport = page.getViewport({ scale: 1.5 });
 
-                // Set canvas dimensions
+                // Set canvas dimensions based on the viewport
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
@@ -224,7 +219,29 @@
                     canvasContext: ctx,
                     viewport: viewport
                 });
+
+                // Display current page number
+                displayCurrentPage(pageNum);
             });
+        }
+
+        // Display current page number in the top right corner
+        function displayCurrentPage(pageNum) {
+            const pageNumberDisplay = document.createElement('div');
+            pageNumberDisplay.style.position = 'absolute';
+            pageNumberDisplay.style.top = '10px';
+            pageNumberDisplay.style.right = '10px';
+            pageNumberDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            pageNumberDisplay.style.color = '#fff';
+            pageNumberDisplay.style.padding = '5px 10px';
+            pageNumberDisplay.style.borderRadius = '3px';
+            pageNumberDisplay.textContent = `الصفحة ${pageNum}`;
+            document.body.appendChild(pageNumberDisplay);
+
+            // Remove the page number display after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(pageNumberDisplay);
+            }, 3000);
         }
 
         // Hide splash screen after 2 seconds
