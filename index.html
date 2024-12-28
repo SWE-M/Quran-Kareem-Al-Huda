@@ -188,17 +188,16 @@
             indexPanel.innerHTML = '';  // Clear previous content
 
             const surahData = [
-                {number: 1, name: "الفاتحة", part: "الجزء الأول", classification: "مكيّة", verses: 7},
-                {number: 2, name: "البقرة", part: "الجزء الأول", classification: "مدنيّة", verses: 286},
+                {number: 1, name: "الفاتحة", part: "الجزء الأول", classification: "مكيّة", verses: 7, page: 1},
+                {number: 2, name: "البقرة", part: "الجزء الأول", classification: "مدنيّة", verses: 286, page: 2},
                 // Add more surahs as needed...
             ];
 
             surahData.forEach(surah => {
                 const button = document.createElement('button');
-                button.textContent = `${surah.number} - ${surah.name} (${surah.part}, ${surah.classification}, آيات: ${surah.verses})`;
+                button.textContent = `${surah.number} - ${surah.name} (${surah.part}, ${surah.classification}, آيات: ${surah.verses}, صفحة: ${surah.page})`;
                 button.onclick = function() {
-                    const pageNumber = surah.number; // Replace with actual page number logic if needed
-                    currentPage = pageNumber;
+                    currentPage = surah.page;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
                     resetHideTimer();
