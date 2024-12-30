@@ -130,7 +130,7 @@
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js" nonce="random-nonce-value"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
 
@@ -153,7 +153,7 @@
     <!-- Index Panel for page navigation -->
     <div id="index-panel"></div>
 
-    <script nonce="random-nonce-value">
+    <script>
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
@@ -186,135 +186,17 @@
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
-            const surahs = [
-    { page: 1, surah: "الفاتحة", part: 1 },
-    { page: 2, surah: "البقرة", part: 1 },
-    { page: 3, surah: "آل عمران", part: 1 },
-    { page: 4, surah: "النساء", part: 1 },
-    { page: 5, surah: "المائدة", part: 1 },
-    { page: 6, surah: "الأنعام", part: 1 },
-    { page: 7, surah: "الأعراف", part: 1 },
-    { page: 8, surah: "الأنفال", part: 2 },
-    { page: 9, surah: "التوبة", part: 2 },
-    { page: 10, surah: "يونس", part: 2 },
-    { page: 11, surah: "هود", part: 2 },
-    { page: 12, surah: "يوسف", part: 3 },
-    { page: 13, surah: "الرعد", part: 3 },
-    { page: 14, surah: "إبراهيم", part: 3 },
-    { page: 15, surah: "الحجر", part: 3 },
-    { page: 16, surah: "النحل", part: 4 },
-    { page: 17, surah: "الإسراء", part: 4 },
-    { page: 18, surah: "الكهف", part: 4 },
-    { page: 19, surah: "مريم", part: 5 },
-    { page: 20, surah: "طه", part: 5 },
-    { page: 21, surah: "الأنبياء", part: 5 },
-    { page: 22, surah: "الحج", part: 6 },
-    { page: 23, surah: "المؤمنون", part: 6 },
-    { page: 24, surah: "النور", part: 6 },
-    { page: 25, surah: "الفرقان", part: 7 },
-    { page: 26, surah: "الشعراء", part: 7 },
-    { page: 27, surah: "النمل", part: 7 },
-    { page: 28, surah: "القصص", part: 8 },
-    { page: 29, surah: "العنكبوت", part: 8 },
-    { page: 30, surah: "الروم", part: 8 },
-    { page: 31, surah: "لقمان", part: 9 },
-    { page: 32, surah: "السجدة", part: 9 },
-    { page: 33, surah: "الأحزاب", part: 9 },
-    { page: 34, surah: "سبأ", part: 10 },
-    { page: 35, surah: "فاطر", part: 10 },
-    { page: 36, surah: "يس", part: 10 },
-    { page: 37, surah: "الصافات", part: 11 },
-    { page: 38, surah: "ص", part: 11 },
-    { page: 39, surah: "الزمر", part: 11 },
-    { page: 40, surah: "غافر", part: 12 },
-    { page: 41, surah: "فصلت", part: 12 },
-    { page: 42, surah: "الشورى", part: 12 },
-    { page: 43, surah: "الزخرف", part: 13 },
-    { page: 44, surah: "الدخان", part: 13 },
-    { page: 45, surah: "الجاثية", part: 13 },
-    { page: 46, surah: "الأحقاف", part: 14 },
-    { page: 47, surah: "محمد", part: 14 },
-    { page: 48, surah: "الفتح", part: 14 },
-    { page: 49, surah: "الحجرات", part: 15 },
-    { page: 50, surah: "ق", part: 15 },
-    { page: 51, surah: "الذاريات", part: 15 },
-    { page: 52, surah: "الطور", part: 16 },
-    { page: 53, surah: "النجم", part: 16 },
-    { page: 54, surah: "القمر", part: 16 },
-    { page: 55, surah: "الرحمن", part: 17 },
-    { page: 56, surah: "الواقعة", part: 17 },
-    { page: 57, surah: "الحديد", part: 17 },
-    { page: 58, surah: "المجادلة", part: 18 },
-    { page: 59, surah: "الحشر", part: 18 },
-    { page: 60, surah: "الممتحنة", part: 18 },
-    { page: 61, surah: "الصف", part: 19 },
-    { page: 62, surah: "الجمعة", part: 19 },
-    { page: 63, surah: "المنافقون", part: 19 },
-    { page: 64, surah: "التغابن", part: 19 },
-    { page: 65, surah: "الطلاق", part: 20 },
-    { page: 66, surah: "التحريم", part: 20 },
-    { page: 67, surah: "الملك", part: 20 },
-    { page: 68, surah: "القلم", part: 21 },
-    { page: 69, surah: "الحاقة", part: 21 },
-    { page: 70, surah: "المعارج", part: 21 },
-    { page: 71, surah: "نوح", part: 22 },
-    { page: 72, surah: "الجن", part: 22 },
-    { page: 73, surah: "المزمل", part: 22 },
-    { page: 74, surah: "المدثر", part: 22 },
-    { page: 75, surah: "القيامة", part: 23 },
-    { page: 76, surah: "الإنسان", part: 23 },
-    { page: 77, surah: "المرسلات", part: 23 },
-    { page: 78, surah: "النبأ", part: 23 },
-    { page: 79, surah: "النازعات", part: 24 },
-    { page: 80, surah: "عبس", part: 24 },
-    { page: 81, surah: "التكوير", part: 24 },
-    { page: 82, surah: "الانفطار", part: 24 },
-    { page: 83, surah: "المطففين", part: 25 },
-    { page: 84, surah: "الانشقاق", part: 25 },
-    { page: 85, surah: "البروج", part: 25 },
-    { page: 86, surah: "الطارق", part: 25 },
-    { page: 87, surah: "الأعلى", part: 26 },
-    { page: 88, surah: "الغاشية", part: 26 },
-    { page: 89, surah: "الفجر", part: 26 },
-    { page: 90, surah: "البلد", part: 26 },
-    { page: 91, surah: "الشمس", part: 27 },
-    { page: 92, surah: "الليل", part: 27 },
-    { page: 93, surah: "الضحى", part: 27 },
-    { page: 94, surah: "الشرح", part: 27 },
-    { page: 95, surah: "التين", part: 27 },
-    { page: 96, surah: "العلق", part: 27 },
-    { page: 97, surah: "القدر", part: 28 },
-    { page: 98, surah: "البينة", part: 28 },
-    { page: 99, surah: "الزلزلة", part: 28 },
-    { page: 100, surah: "العاديات", part: 28 },
-    { page: 101, surah: "القارعة", part: 28 },
-    { page: 102, surah: "التكاثر", part: 28 },
-    { page: 103, surah: "العصر", part: 28 },
-    { page: 104, surah: "الهمزة", part: 28 },
-    { page: 105, surah: "الفيل", part: 28 },
-    { page: 106, surah: "قريش", part: 28 },
-    { page: 107, surah: "الماعون", part: 28 },
-    { page: 108, surah: "الكوثر", part: 28 },
-    { page: 109, surah: "الكافرون", part: 28 },
-    { page: 110, surah: "النصر", part: 28 },
-    { page: 111, surah: "المسد", part: 28 },
-    { page: 112, surah: "الإخلاص", part: 28 },
-    { page: 113, surah: "الفلق", part: 28 },
-    { page: 114, surah: "الناس", part: 28 }
-];
-
-
-            surahs.forEach(function(item) {
+            for (let i = 1; i <= totalPages; i++) {
                 const button = document.createElement('button');
-                button.textContent = `${item.page} - ${item.surah} (جزء ${item.part})`;
+                button.textContent = i;
                 button.onclick = function() {
-                    currentPage = item.page;
+                    currentPage = i;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
                     resetHideTimer();
                 };
                 indexPanel.appendChild(button);
-            });
+            }
         }
 
         // Render a specific page
