@@ -56,10 +56,10 @@
         /* PDF Container */
         #pdf-container {
             position: absolute;
-            top: 0;
+            top: 50px; /* Adjusted to allow space for the index panel */
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 50px);
             z-index: 1;
             display: flex;
             justify-content: center;
@@ -67,67 +67,57 @@
             overflow: auto;
         }
 
-        /* PDF Mask */
-        .pdf-mask {
+        /* Index Panel */
+        #index-panel {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(253, 244, 227, 0.4); /* لون شفاف مشابه للخلفية */
-            z-index: 10; /* يظهر فوق محتوى PDF */
+            height: 50px;
+            background-color: #f9e7ce;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 10;
+            border-bottom: 2px solid #3a2a12;
         }
 
-        #pdf-canvas {
-            position: relative;
-            z-index: 5; /* خلف القناع */
-            opacity: 0.9; /* خفض شفافية الـ PDF */
-        }
-
-        /* Focusing on index panel */
-        #index-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 2;
-            background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid #3a2a12; /* إطار مشابه */
-        }
-
-        #index-panel button {
-            background-color: #f9e7ce; /* لون أزرار مشابه */
-            color: #3a2a12;
+        .index-item {
+            display: flex;
+            align-items: center;
+            background-color: #fdf4e3;
             border: 1px solid #3a2a12;
+            border-radius: 25px;
             padding: 5px 10px;
-            margin: 3px;
-            cursor: pointer;
-            display: block;
+            margin: 0 5px;
+        }
+
+        .index-item select, .index-item input {
+            border: none;
+            background: transparent;
             text-align: center;
-            border-radius: 3px;
+            font-size: 1rem;
+            color: #3a2a12;
+            width: 50px;
         }
 
-        #index-panel button:hover {
-            background-color: #f3d9a3; /* تأثير عند التمرير */
+        .index-item select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            text-align-last: center;
         }
 
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
+        .index-item button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: #3a2a12;
+            font-size: 1.2rem;
+        }
 
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
+        .index-item button:hover {
+            color: #f3d9a3;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -144,132 +134,79 @@
         <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
     </div>
 
-    <!-- PDF Container -->
-    <div id="pdf-container">
-        <div class="pdf-mask"></div> <!-- القناع المضاف -->
-        <canvas id="pdf-canvas"></canvas>
+    <!-- Index Panel -->
+    <div id="index-panel">
+        <div class="index-item">
+            <label>السورة:</label>
+            <select id="sura-select">
+                <option>الفاتحة</option>
+                <option>البقرة</option>
+                <!-- Add other suras here -->
+            </select>
+        </div>
+        <div class="index-item">
+            <label>الآية:</label>
+            <input id="ayah-input" type="number" value="1" min="1">
+        </div>
+        <div class="index-item">
+            <label>الصفحة:</label>
+            <input id="page-input" type="number" value="1" min="1">
+        </div>
+        <div class="index-item">
+            <label>الجزء:</label>
+            <select id="juz-select">
+                <option>1</option>
+                <option>2</option>
+                <!-- Add other parts here -->
+            </select>
+        </div>
     </div>
 
-    <!-- Index Panel for page navigation -->
-    <div id="index-panel"></div>
+    <!-- PDF Container -->
+    <div id="pdf-container">
+        <canvas id="pdf-canvas"></canvas>
+    </div>
 
     <script>
         let pdfDoc = null;
         let currentPage = 1;
-        let totalPages = 0;
-        let hideTimer;
-
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Load the PDF document
         const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
+
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
-            totalPages = pdf.numPages;
-
-            // Display index panel with page numbers
-            displayIndexPanel();
-
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
-
             renderPage(currentPage);
         });
 
-        // Display page numbers in the index
-        function displayIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
-            indexPanel.innerHTML = '';  // Clear previous content
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = function() {
-                    currentPage = i;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                };
-                indexPanel.appendChild(button);
-            }
-        }
-
-        // Render a specific page
         function renderPage(pageNum) {
             pdfDoc.getPage(pageNum).then(function(page) {
                 const viewport = page.getViewport({ scale: 1.5 });
-
-                // Set canvas dimensions
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
-
-                // Render the page content
-                page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
+                page.render({ canvasContext: ctx, viewport: viewport });
             });
         }
 
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // Handling swipe gesture for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
+        document.getElementById('sura-select').addEventListener('change', function() {
+            // Logic to navigate based on sura selection
         });
 
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
+        document.getElementById('ayah-input').addEventListener('input', function() {
+            // Logic to navigate based on ayah input
+        });
 
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
+        document.getElementById('page-input').addEventListener('input', function() {
+            const page = parseInt(this.value);
+            if (page >= 1 && page <= pdfDoc.numPages) {
+                currentPage = page;
+                renderPage(currentPage);
             }
         });
 
-        // Hide the index panel after 2 seconds
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                document.getElementById('index-panel').style.display = 'none';
-            }, 2000);
-        }
-
-        // Show the index panel when the user interacts with the screen
-        document.body.addEventListener('touchstart', () => {
-            document.getElementById('index-panel').style.display = 'block';
-            resetHideTimer();
+        document.getElementById('juz-select').addEventListener('change', function() {
+            // Logic to navigate based on juz selection
         });
     </script>
 </body>
