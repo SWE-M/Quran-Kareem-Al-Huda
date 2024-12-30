@@ -163,7 +163,7 @@
         const ctx = canvas.getContext('2d');
 
         // Load the PDF document
-        const url = 'path/to/your/pdf/E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
+        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
             pdfDoc = pdf;
             totalPages = pdf.numPages;
