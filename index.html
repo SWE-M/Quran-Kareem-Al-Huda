@@ -97,22 +97,25 @@
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid #3a2a12; /* إطار مشابه */
+            width: 250px;
         }
 
         #index-panel button {
             background-color: #f9e7ce; /* لون أزرار مشابه */
             color: #3a2a12;
             border: 1px solid #3a2a12;
-            padding: 5px 10px;
-            margin: 3px;
+            padding: 8px 16px;
+            margin: 5px;
             cursor: pointer;
             display: block;
             text-align: center;
-            border-radius: 3px;
+            border-radius: 5px;
+            font-size: 1.1rem; /* زيادة حجم الخط */
         }
 
         #index-panel button:hover {
             background-color: #f3d9a3; /* تأثير عند التمرير */
+            transform: scale(1.1); /* تكبير الأزرار عند التمرير */
         }
 
         /* Adjustments for smaller screens */
@@ -130,7 +133,7 @@
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js" nonce="random-nonce-value"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
 
@@ -153,7 +156,7 @@
     <!-- Index Panel for page navigation -->
     <div id="index-panel"></div>
 
-    <script nonce="random-nonce-value">
+    <script>
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
@@ -162,207 +165,153 @@
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Load the PDF document
-        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            pdfDoc = pdf;
-            totalPages = pdf.numPages;
+        // قائمة السور مع الأجزاء (هذه مجرد أمثلة، يجب عليك تعديلها بناءً على موقع كل سورة)
+        const surahs = [
+            { name: "الفاتحة", part: 1 },
+            { name: "البقرة", part: 1 },
+            { name: "آل عمران", part: 1 },
+            { name: "النساء", part: 2 },
+            { name: "المائدة", part: 2 },
+            { name: "الأنعام", part: 3 },
+            { name: "الأعراف", part: 3 },
+            { name: "الأنفال", part: 4 },
+            { name: "التوبة", part: 4 },
+            { name: "يونس", part: 5 },
+            { name: "هود", part: 5 },
+            { name: "يوسف", part: 6 },
+            { name: "إبراهيم", part: 6 },
+            { name: "الحجر", part: 7 },
+            { name: "النحل", part: 7 },
+            { name: "الإسراء", part: 8 },
+            { name: "الكهف", part: 8 },
+            { name: "مريم", part: 9 },
+            { name: "طه", part: 9 },
+            { name: "الأنبياء", part: 10 },
+            { name: "الحج", part: 10 },
+            { name: "المؤمنون", part: 11 },
+            { name: "الفرقان", part: 11 },
+            { name: "النمل", part: 12 },
+            { name: "العنكبوت", part: 12 },
+            { name: "الروم", part: 13 },
+            { name: "لقمان", part: 13 },
+            { name: "السجد", part: 14 },
+            { name: "الأحزاب", part: 14 },
+            { name: "سبأ", part: 15 },
+            { name: "فاطر", part: 15 },
+            { name: "يس", part: 16 },
+            { name: "الصافات", part: 16 },
+            { name: "الزمر", part: 17 },
+            { name: "فصلت", part: 17 },
+            { name: "الشورى", part: 18 },
+            { name: "الزخرف", part: 18 },
+            { name: "الدخان", part: 19 },
+            { name: "الجاثية", part: 19 },
+            { name: "الأحقاف", part: 19 },
+            { name: "محمد", part: 20 },
+            { name: "الفتح", part: 20 },
+            { name: "الحجرات", part: 20 },
+            { name: "ق", part: 21 },
+            { name: "الذاريات", part: 21 },
+            { name: "الطور", part: 21 },
+            { name: "النجمة", part: 22 },
+            { name: "القمر", part: 22 },
+            { name: "الرحمن", part: 23 },
+            { name: "الواقعة", part: 23 },
+            { name: "الحديد", part: 24 },
+            { name: "المجادلة", part: 24 },
+            { name: "الحشر", part: 25 },
+            { name: "الممتحنة", part: 25 },
+            { name: "الصف", part: 25 },
+            { name: "الجمعة", part: 26 },
+            { name: "المنافقون", part: 26 },
+            { name: "التغابن", part: 26 },
+            { name: "الطلاق", part: 27 },
+            { name: "التحريم", part: 27 },
+            { name: "الملك", part: 27 },
+            { name: "القلم", part: 28 },
+            { name: "الحاقة", part: 28 },
+            { name: "المعارج", part: 29 },
+            { name: "نوح", part: 29 },
+            { name: "الجن", part: 29 },
+            { name: "المزمل", part: 30 },
+            { name: "المدثر", part: 30 },
+            { name: "القيامة", part: 30 },
+            { name: "الإنسان", part: 30 },
+            { name: "المرسلات", part: 30 },
+            { name: "النبأ", part: 30 },
+            { name: "النازعات", part: 30 },
+            { name: "عبس", part: 30 },
+            { name: "التكوير", part: 30 },
+            { name: "الإنفطار", part: 30 },
+            { name: "المطففين", part: 30 },
+            { name: "الهمزة", part: 30 },
+            { name: "الفيل", part: 30 },
+            { name: "قريش", part: 30 },
+            { name: "الماعون", part: 30 },
+            { name: "الكوثر", part: 30 },
+            { name: "الكافرون", part: 30 },
+            { name: "النصر", part: 30 },
+            { name: "المسد", part: 30 },
+            { name: "الإخلاص", part: 30 },
+            { name: "الفلق", part: 30 },
+            { name: "الناس", part: 30 }
+        ];
 
-            // Display index panel with page numbers
-            displayIndexPanel();
+        // Initialize PDF
+        function loadPDF() {
+            const url = "E-Quran-mobile.pdf"; // ضع هنا رابط الـ PDF
+            pdfjsLib.getDocument(url).promise.then(function (pdf) {
+                pdfDoc = pdf;
+                totalPages = pdf.numPages;
+                renderPage(currentPage);
+            });
+        }
 
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
+        // Render page with surah names and parts
+        function renderPage(pageNum) {
+            pdfDoc.getPage(pageNum).then(function (page) {
+                const viewport = page.getViewport({ scale: 1 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
 
-            renderPage(currentPage);
-        });
+                page.render({ canvasContext: ctx, viewport: viewport });
 
-        // Display page numbers in the index
-        function displayIndexPanel() {
+                // Update the index panel with surah name and part for the current page
+                updateIndexPanel(pageNum);
+            });
+        }
+
+        // Update the index panel
+        function updateIndexPanel(pageNum) {
             const indexPanel = document.getElementById('index-panel');
-            indexPanel.style.display = 'block';
-            indexPanel.innerHTML = '';  // Clear previous content
+            indexPanel.innerHTML = '';
 
-            const surahs = [
-                { page: 1, surah: "الفاتحة", part: 1 },
-                { page: 2, surah: "البقرة", part: 1 },
-                 { name: "آل عمران", part: 1 },
-                 { name: "النساء", part: 2 },
-              { name: "المائدة", part: 2 },
-    { name: "الأنعام", part: 3 },
-    { name: "الأعراف", part: 3 },
-    { name: "الأنفال", part: 4 },
-    { name: "التوبة", part: 4 },
-    { name: "يونس", part: 5 },
-    { name: "هود", part: 5 },
-    { name: "يوسف", part: 6 },
-    { name: "إبراهيم", part: 6 },
-    { name: "الحجر", part: 7 },
-    { name: "النحل", part: 7 },
-    { name: "الإسراء", part: 8 },
-    { name: "الكهف", part: 8 },
-    { name: "مريم", part: 9 },
-    { name: "طه", part: 9 },
-    { name: "الأنبياء", part: 10 },
-    { name: "الحج", part: 10 },
-    { name: "المؤمنون", part: 11 },
-    { name: "الفرقان", part: 11 },
-    { name: "النمل", part: 12 },
-    { name: "العنكبوت", part: 12 },
-    { name: "الروم", part: 13 },
-    { name: "لقمان", part: 13 },
-    { name: "السجد", part: 14 },
-    { name: "الأحزاب", part: 14 },
-    { name: "سبأ", part: 15 },
-    { name: "فاطر", part: 15 },
-    { name: "يس", part: 16 },
-    { name: "الصافات", part: 16 },
-    { name: "الزمر", part: 17 },
-    { name: "فصلت", part: 17 },
-    { name: "الشورى", part: 18 },
-    { name: "الزخرف", part: 18 },
-    { name: "الدخان", part: 19 },
-    { name: "الجاثية", part: 19 },
-    { name: "الأحقاف", part: 19 },
-    { name: "محمد", part: 20 },
-    { name: "الفتح", part: 20 },
-    { name: "الحجرات", part: 20 },
-    { name: "ق", part: 21 },
-    { name: "الذاريات", part: 21 },
-    { name: "الطور", part: 21 },
-    { name: "النجمة", part: 22 },
-    { name: "القمر", part: 22 },
-    { name: "الرحمن", part: 23 },
-    { name: "الواقعة", part: 23 },
-    { name: "الحديد", part: 24 },
-    { name: "المجادلة", part: 24 },
-    { name: "الحشر", part: 25 },
-    { name: "الممتحنة", part: 25 },
-    { name: "الصف", part: 25 },
-    { name: "الجمعة", part: 26 },
-    { name: "المنافقون", part: 26 },
-    { name: "التغابن", part: 26 },
-    { name: "الطلاق", part: 27 },
-    { name: "التحريم", part: 27 },
-    { name: "الملك", part: 27 },
-    { name: "القلم", part: 28 },
-    { name: "الحاقة", part: 28 },
-    { name: "المعارج", part: 29 },
-    { name: "نوح", part: 29 },
-    { name: "الجن", part: 29 },
-    { name: "المزمل", part: 30 },
-    { name: "المدثر", part: 30 },
-    { name: "القيامة", part: 30 },
-    { name: "الإنسان", part: 30 },
-    { name: "المرسلات", part: 30 },
-    { name: "النبأ", part: 30 },
-    { name: "النازعات", part: 30 },
-    { name: "عبس", part: 30 },
-    { name: "التكوير", part: 30 },
-    { name: "الإنفطار", part: 30 },
-    { name: "المطففين", part: 30 },
-    { name: "الهمزة", part: 30 },
-    { name: "الفيل", part: 30 },
-    { name: "قريش", part: 30 },
-    { name: "الماعون", part: 30 },
-    { name: "الكوثر", part: 30 },
-    { name: "الكافرون", part: 30 },
-    { name: "النصر", part: 30 },
-    { name: "المسد", part: 30 },
-    { name: "الإخلاص", part: 30 },
-    { name: "الفلق", part: 30 },
-    { name: "الناس", part: 30 }
-                // أكمل باقي السور...
-            ];
-
-            surahs.forEach(function(item) {
+            // Add each page number with corresponding surah and part
+            surahs.forEach((surah, index) => {
                 const button = document.createElement('button');
-                button.textContent = `${item.page} - ${item.surah} (جزء ${item.part})`;
-                button.onclick = function() {
-                    currentPage = item.page;
+                button.textContent = `الصفحة ${index + 1}: ${surah.name} (الجزء ${surah.part})`;
+                button.onclick = () => {
+                    currentPage = index + 1;
                     renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
+                    indexPanel.style.display = 'none';
                 };
                 indexPanel.appendChild(button);
             });
+
+            // Toggle the visibility of the index panel
+            indexPanel.style.display = 'block';
         }
 
-        // Render a specific page
-        function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
-
-                // Set canvas dimensions
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // Render the page content
-                page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
-            });
-        }
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
+        // Hide splash screen after a delay
+        setTimeout(function () {
+            document.getElementById('splash-screen').style.opacity = 0;
             setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
+                document.getElementById('splash-screen').style.display = 'none';
+            }, 500);
+        }, 3000);
 
-        // Handling swipe gesture for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
-
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
-                }
-            }
-        });
-
-        // Hide the index panel after 2 seconds
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                document.getElementById('index-panel').style.display = 'none';
-            }, 2000);
-        }
-
-        // Show the index panel when the user interacts with the screen
-        document.body.addEventListener('touchstart', () => {
-            document.getElementById('index-panel').style.display = 'block';
-            resetHideTimer();
-        });
+        // Initialize PDF loading
+        loadPDF();
     </script>
 </body>
 </html>
