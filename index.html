@@ -4,29 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - الهدى</title>
-    <script>
-        // توليد nonce بشكل عشوائي
-        function generateNonce() {
-            const array = new Uint8Array(32); // توليد مصفوفة عشوائية من 32 عنصرًا
-            window.crypto.getRandomValues(array); // ملء المصفوفة بالقيم العشوائية
-            return btoa(String.fromCharCode.apply(null, array)); // تحويلها إلى قيمة base64
-        }
 
-        // توليد nonce وتحديث سياسة الـ CSP بعد تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function () {
-            const nonce = generateNonce(); // توليد nonce
-            // تحديث سياسة الـ CSP في رأس الصفحة
-            const cspMetaTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-            cspMetaTag.setAttribute('content', `script-src 'self' 'nonce-${nonce}';`);
-            
-            // إضافة nonce إلى جميع السكربتات الداخلية
-            const scripts = document.querySelectorAll('script[nonce]');
-            scripts.forEach(function(script) {
-                script.setAttribute('nonce', nonce);
-            });
-        });
-    </script>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+    <!-- Set CSP to allow scripts from 'self' and cdn -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdnjs.cloudflare.com; style-src 'self';">
+
     <style>
         /* Reset and general styles */
         body, html {
@@ -143,7 +124,26 @@
             color: #f3d9a3;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js" nonce=""> </script>
+
+    <!-- Dynamically generate nonce -->
+    <script>
+        // Generate a random nonce value
+        function generateNonce() {
+            return btoa(Math.random().toString()).substr(10, 12);  // Base64 encode a random number as nonce
+        }
+        const nonce = generateNonce();
+        document.documentElement.setAttribute('nonce', nonce);  // Set nonce on the HTML root
+    </script>
+
+    <!-- External PDF.js script -->
+    <script nonce="nonce">
+        if (typeof pdfjsLib === "undefined") {
+            const script = document.createElement("script");
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js";
+            script.nonce = nonce;  // Attach nonce to the script tag
+            document.head.appendChild(script);
+        }
+    </script>
 </head>
 <body>
 
@@ -190,7 +190,7 @@
         <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <script nonce="">
+    <script nonce="nonce">
         let pdfDoc = null;
         let currentPage = 1;
         const canvas = document.getElementById('pdf-canvas');
