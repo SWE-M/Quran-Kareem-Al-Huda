@@ -97,6 +97,7 @@
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid #3a2a12; /* إطار مشابه */
+            transition: opacity 0.5s ease; /* Transition for smooth effect */
         }
 
         #index-panel button {
@@ -113,6 +114,11 @@
 
         #index-panel button:hover {
             background-color: #f3d9a3; /* تأثير عند التمرير */
+        }
+
+        #index-panel.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Adjustments for smaller screens */
@@ -195,7 +201,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let totalPages = 0;
-        let hideTimer;
+        let hideTimer, indexHideTimer;
         let zoomLevel = 1; // مستوى التكبير الافتراضي
         const zoomStep = 0.2; // مقدار التكبير/التصغير
         const maxZoom = 3; // الحد الأقصى للتكبير
@@ -206,6 +212,7 @@
 
         const zoomControls = document.getElementById('zoom-controls');
         const pdfContainer = document.getElementById('pdf-container');
+        const indexPanel = document.getElementById('index-panel');
 
         // Load the PDF document
         const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
@@ -227,7 +234,6 @@
 
         // Display page numbers in the index
         function displayIndexPanel() {
-            const indexPanel = document.getElementById('index-panel');
             indexPanel.style.display = 'block';
             indexPanel.innerHTML = '';  // Clear previous content
 
@@ -238,7 +244,7 @@
                     currentPage = i;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
+                    resetIndexHideTimer();
                 };
                 indexPanel.appendChild(button);
             }
@@ -288,7 +294,7 @@
                     currentPage--;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
+                    resetIndexHideTimer();
                 }
             }
 
@@ -298,7 +304,7 @@
                     currentPage++;
                     renderPage(currentPage);
                     localStorage.setItem('currentPage', currentPage);
-                    resetHideTimer();
+                    resetIndexHideTimer();
                 }
             }
         });
@@ -322,7 +328,7 @@
             resetHideTimer();
         });
 
-        // Hide the index panel after 2 seconds
+        // Hide the zoom controls after 2 seconds
         function resetHideTimer() {
             clearTimeout(hideTimer);
             zoomControls.classList.remove('hidden');
@@ -331,9 +337,24 @@
             }, 2000);
         }
 
-        // Show the zoom controls when the user interacts with the screen
-        document.body.addEventListener('mousemove', resetHideTimer);
-        document.body.addEventListener('touchstart', resetHideTimer);
+        // Hide the index panel after 2 seconds
+        function resetIndexHideTimer() {
+            clearTimeout(indexHideTimer);
+            indexPanel.classList.remove('hidden');
+            indexHideTimer = setTimeout(() => {
+                indexPanel.classList.add('hidden');
+            }, 2000);
+        }
+
+        // Show the zoom controls and index panel when the user interacts with the screen
+        document.body.addEventListener('mousemove', () => {
+            resetHideTimer();
+            resetIndexHideTimer();
+        });
+        document.body.addEventListener('touchstart', () => {
+            resetHideTimer();
+            resetIndexHideTimer();
+        });
     </script>
 </body>
 </html>
