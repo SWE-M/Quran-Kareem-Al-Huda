@@ -13,8 +13,8 @@
             background-color: #fdf4e3; /* لون مشابه للصورة */
             color: #3a2a12; /* لون النص مشابه */
             height: 100%;
-            overflow: hidden;
             transition: filter 0.3s ease; /* Transition for smooth effect */
+            overflow: hidden;
         }
 
         /* Splash Screen */
@@ -64,7 +64,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: auto;
+            overflow: auto; /* Enable scrolling */
         }
 
         /* PDF Mask */
@@ -314,7 +314,8 @@
             if (zoomLevel < maxZoom) {
                 zoomLevel += zoomStep;
                 pdfContainer.style.transform = `scale(${zoomLevel})`;
-                pdfContainer.style.transformOrigin = 'center center';
+                pdfContainer.style.transformOrigin = 'center top';
+                pdfContainer.style.overflow = 'auto'; // Enable scrolling
             }
             resetHideTimer();
         });
@@ -323,7 +324,10 @@
             if (zoomLevel > minZoom) {
                 zoomLevel -= zoomStep;
                 pdfContainer.style.transform = `scale(${zoomLevel})`;
-                pdfContainer.style.transformOrigin = 'center center';
+                pdfContainer.style.transformOrigin = 'center top';
+                if (zoomLevel === minZoom) {
+                    pdfContainer.style.overflow = 'hidden'; // Disable scrolling at min zoom
+                }
             }
             resetHideTimer();
         });
